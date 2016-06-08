@@ -11,7 +11,6 @@ var onFileOpen = function(content) {
 	console.log(content);
 };
 
-
 addEventListener("load", function() {
 
 	$("#save")[0].addEventListener("click", function(ev) {
