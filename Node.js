@@ -165,11 +165,15 @@ window.Node = function() {
 		return node;
 	};
 
-	this.debug = function(indent=1) {
-		console.log('-' + Array(indent).join('--'), self.data);
-    	if (self.left !== null) self.left.debug(indent + 1);
-    	if (self.right !== null) self.right.debug(indent + 1);
+	this.debug = function() {
+		self.debugHelper(1);
  	};
+
+	this.debugHelper =  function(indent) {
+		console.log('-' + Array(indent).join('--'), self.data);
+    	if (self.left !== null) self.left.debugHelper(indent + 1);
+    	if (self.right !== null) self.right.debugHelper(indent + 1);
+	};
 };
 
 })();
