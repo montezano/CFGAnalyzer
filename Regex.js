@@ -39,13 +39,18 @@ window.Regex = function(str) {
 			}
 			if (regex[i] == ')') {
 				var subtree = treeList.pop();
+				subtree.changePriority(10);
 				treeList[treeList.length - 1].push(subtree);
+
+				// treeList[treeList.length - 1].debug();
+				// console.log("--------------");
 				continue;
 			}
 			var tree = treeList[treeList.length - 1];
 			tree.push(regex[i]);
 			treeList[treeList.length - 1] = tree.root();
-			// root.debug();
+
+			// treeList[treeList.length - 1].debug();
 			// console.log("--------------");
 		}
 		treeList[0].debug();
@@ -70,6 +75,6 @@ window.Regex = function(str) {
 	};
 };
 
-new Regex("a(b|c)").toDeSimoneTree();
+new Regex("a?(bc)?").toDeSimoneTree();
 
 })();

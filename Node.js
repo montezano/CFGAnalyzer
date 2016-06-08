@@ -11,11 +11,10 @@ for (var i = 0; i < 10; i++) {
 
 // Structure:
 // "operator": [number of operands, priority]
-// Note that only operators with 2 operands need a priority.
 var operatorInfo = {
-	"?": [1],
-	"*": [1],
-	"+": [1],
+	"?": [1, 3],
+	"*": [1, 3],
+	"+": [1, 3],
 	"|": [2, 1],
 	".": [2, 2]
 };
@@ -33,6 +32,7 @@ var priority = function(operator) {
 window.Node = function() {
 	var self = this;
 	this.isOperator = false;
+	this.priority = 0;
 	this.data = null;
 	this.left = null;
 	this.right = null;
@@ -42,6 +42,7 @@ window.Node = function() {
 		// console.log("Pushing subtree...");
 		if (self.data === null) {
 			self.isOperator = tree.isOperator;
+			self.priority = tree.priority;
 			self.data = tree.data;
 			self.left = tree.left;
 			self.right = tree.right;
@@ -92,6 +93,7 @@ window.Node = function() {
 		// console.log("Operator: " + char);
 		if (self.data === null) {
 			self.isOperator = true;
+			self.priority = priority(char);
 			self.data = char;
 			return;
 		}
@@ -104,7 +106,7 @@ window.Node = function() {
 			return;
 		}
 
-		if (!self.isOperator || priority(self.data) >= priority(char)) {
+		if (!self.isOperator || self.priority >= priority(char)) {
 			var node = new Node();
 			node.push(char);
 			node.parent = self.parent;
@@ -120,8 +122,9 @@ window.Node = function() {
 			return;
 		}
 
-		if (priority(self.data) < priority(char)) {
+		if (self.priority < priority(char)) {
 			self.right.push(char);
+			return;
 		}
 
 		console.log("Error: invalid regex");
@@ -137,6 +140,20 @@ window.Node = function() {
 			pushOperator(char);
 		} else {
 			console.log("Warning: unknown character \"" + char + "\"");
+		}
+	};
+
+	this.changePriority = function(delta) {
+		if (self.left !== null) {
+			self.left.changePriority(delta);
+		}
+
+		if (self.isOperator) {
+			self.priority += delta;
+		}
+
+		if (self.right !== null) {
+			self.right.changePriority(delta);
 		}
 	};
 
