@@ -29,9 +29,28 @@ window.Regex = function(str) {
 	// Returns a tree representing the De Simone form of this regex.
 	this.toDeSimoneTree = function() {
 		var regex = normalize();
-		var root = new Node();
-		// TODO
-		return root;
+		// var root = new Node();
+		var treeList = [new Node()];
+		console.log("Regex: " + regex);
+		for (var i = 0; i < regex.length; i++) {
+			if (regex[i] == '(') {
+				treeList.push(new Node());
+				continue;
+			}
+			if (regex[i] == ')') {
+				var subtree = treeList.pop();
+				treeList[treeList.length - 1].push(subtree);
+				continue;
+			}
+			var tree = treeList[treeList.length - 1];
+			tree.push(regex[i]);
+			treeList[treeList.length - 1] = tree.root();
+			// root.debug();
+			// console.log("--------------");
+		}
+		treeList[0].debug();
+
+		return treeList[0];
 	};
 
 	// Returns a finite automaton representing this regex.
@@ -50,5 +69,7 @@ window.Regex = function(str) {
 		return false;
 	};
 };
+
+new Regex("a(b|c)").toDeSimoneTree();
 
 })();
