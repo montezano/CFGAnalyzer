@@ -165,28 +165,10 @@ window.Node = function() {
 		return node;
 	};
 
-	this.debug = function() {
-		if (self.left !== null) {
-			self.left.debug();
-		}
-
-		var str = self.data;
-		if (self.isOperator) {
-			str += " (";
-			str += (self.left === null) ? "none" : "'" + self.left.data + "'";
-			str += ", ";
-			str += (self.right === null) ? "none" : "'" + self.right.data + "'";
-			str += ")";
-		}
-
-		if (self.parent === null) {
-			str += " [ROOT]";
-		}
-		console.log(str);
-
-		if (self.right !== null) {
-			self.right.debug();
-		}
+	this.debug = function(indent=1) {
+		console.log('-' + Array(indent).join('--'), self.data);
+    	if (self.left !== null) self.left.debug(indent + 1);
+    	if (self.right !== null) self.right.debug(indent + 1);
  	};
 };
 
