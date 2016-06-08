@@ -7,8 +7,21 @@ window.Regex = function(str) {
 
 	// Adds concatenation wherever it's implicit. Returns the new regex.
 	function normalize() {
-		// TODO
-		return "";
+		var noDot = true;
+		var normalizedStr = "";
+		var specialModifier = "?*+)|";
+		for (var i = 0; i < str.length; i++) {
+			if (!specialModifier.includes(str[i]) && !noDot) {
+				normalizedStr += '.';
+			}
+			normalizedStr += str[i];
+			if (str[i] == '(' || str[i] == '|') {
+				noDot = true;
+			} else {
+				noDot = false;
+			}
+		}
+		return normalizedStr;
 	};
 
 	// FIXME: should this method be private?
