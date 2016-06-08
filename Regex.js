@@ -11,6 +11,7 @@ window.Regex = function(str) {
 		var normalizedStr = "";
 		var specialModifier = "?*+)|";
 		for (var i = 0; i < str.length; i++) {
+			if (str[i] == '.') continue;
 			if (!specialModifier.includes(str[i]) && !noDot) {
 				normalizedStr += '.';
 			}
