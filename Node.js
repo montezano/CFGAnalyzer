@@ -148,8 +148,8 @@ window.Node = function() {
 
 	this.debugHelper =  function(indent) {
 		console.log('-' + Array(indent).join('--'), self.data);
-    	if (self.left !== null) self.left.debugHelper(indent + 1);
-    	if (self.right !== null) self.right.debugHelper(indent + 1);
+		if (self.left !== null) self.left.debugHelper(indent + 1);
+		if (self.right !== null) self.right.debugHelper(indent + 1);
 	};
 };
 
