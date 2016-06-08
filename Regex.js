@@ -22,7 +22,7 @@ window.Regex = function(str) {
 			}
 		}
 		return normalizedStr;
-	};
+	}
 
 	// FIXME: should this method be private?
 	// Returns a tree representing the De Simone form of this regex.
@@ -47,7 +47,7 @@ window.Regex = function(str) {
 			// TODO
 		}
 		return false;
-	}
+	};
 };
 
 })();
