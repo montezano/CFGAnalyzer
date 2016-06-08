@@ -1,37 +1,43 @@
 (function(){
 "use strict";
 
-var DEFAULT_FILE_NAME = "er.txt";
-
-var textFile = null;
-var downloadLink = null;
-
 window.Utilities = {
-	save: function(content) {
-		var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-		if (textFile !== null) {
-			URL.revokeObjectURL(textFile);
-		}
-		textFile = URL.createObjectURL(blob);
+	// A list of valid terminal terms (it's filled in the loops below)
+	alphabet: ["&"],
 
-		if (downloadLink === null) {
-			downloadLink = document.createElement("a");
-			downloadLink.download = DEFAULT_FILE_NAME;
-			downloadLink.style.display = "none";
-			document.body.appendChild(downloadLink);
-		}
-		downloadLink.href = textFile;
-		downloadLink.click();
+	// Structure:
+	// "operator": [number of operands, priority]
+	operatorInfo: {
+		"?": [1, 3],
+		"*": [1, 3],
+		"+": [1, 3],
+		"|": [2, 1],
+		".": [2, 2]
 	},
-	open: function(file, callback) {
-		if (file) {
-			var reader = new FileReader();
-			reader.onload = function(e) {
-				callback(e.target.result);
-			};
-			reader.readAsText(file);
-		}		
+
+	// A list containing only the operator symbols (filled below)
+	operators: null,
+
+	// Shortcut functions
+	numOperands: function(operator) {
+		return Utilities.operatorInfo[operator][0];
+	},
+
+	priority: function(operator) {
+		return Utilities.operatorInfo[operator][1];
 	}
 };
+
+// Adds all lowercase letters to the terminal list
+for (var code = 65; code < 65 + 26; code++) {
+	Utilities.alphabet.push(String.fromCharCode(code).toLowerCase());
+}
+
+// Adds all digits to the terminal list
+for (var i = 0; i < 10; i++) {
+	Utilities.alphabet.push(i + "");
+}
+
+Utilities.operators = Object.keys(Utilities.operatorInfo);
 
 })();

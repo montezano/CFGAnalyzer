@@ -15,12 +15,12 @@ addEventListener("load", function() {
 
 	$("#save")[0].addEventListener("click", function(ev) {
 		// TODO
-		Utilities.save("Hello, world!");
+		File.save("Hello, world!");
 	});
 
 	$("#file_selector")[0].addEventListener("change", function(ev) {
 		var file = ev.target.files[0];
-		Utilities.open(file, onFileOpen);
+		File.open(file, onFileOpen);
 	});
 
 });

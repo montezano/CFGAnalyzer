@@ -38,6 +38,10 @@ window.Regex = function(str) {
 				continue;
 			}
 			if (regex[i] == ')') {
+				if (treeList.length == 1 || !tree.isValid()) {
+					console.log("Error: invalid regex");
+					break;
+				}
 				var subtree = treeList.pop();
 				subtree.changePriority(10);
 				treeList[treeList.length - 1].push(subtree);
@@ -75,6 +79,6 @@ window.Regex = function(str) {
 	};
 };
 
-new Regex("a?(bc)?").toDeSimoneTree();
+new Regex("a?(ba)").toDeSimoneTree();
 
 })();

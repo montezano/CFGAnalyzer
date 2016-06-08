@@ -1,34 +1,6 @@
 (function(){
 "use strict";
 
-var alphabet = ["&"];
-for (var code = 65; code < 65 + 26; code++) {
-	alphabet.push(String.fromCharCode(code).toLowerCase());
-}
-for (var i = 0; i < 10; i++) {
-	alphabet.push(i + "");
-}
-
-// Structure:
-// "operator": [number of operands, priority]
-var operatorInfo = {
-	"?": [1, 3],
-	"*": [1, 3],
-	"+": [1, 3],
-	"|": [2, 1],
-	".": [2, 2]
-};
-
-var operators = Object.keys(operatorInfo);
-
-var numOperands = function(operator) {
-	return operatorInfo[operator][0];
-};
-
-var priority = function(operator) {
-	return operatorInfo[operator][1];
-};
-
 window.Node = function() {
 	var self = this;
 	this.isOperator = false;
@@ -55,7 +27,7 @@ window.Node = function() {
 		}
 
 		if (self.right === null) {
-			if (numOperands(self.data) != 2) {
+			if (Utilities.numOperands(self.data) != 2) {
 				console.log("Error: invalid regex");
 				return;
 			}
@@ -79,7 +51,7 @@ window.Node = function() {
 		}
 
 		if (self.right === null) {
-			if (numOperands(self.data) != 2) {
+			if (Utilities.numOperands(self.data) != 2) {
 				console.log("Error: invalid regex");
 				return;
 			}
@@ -93,12 +65,12 @@ window.Node = function() {
 		// console.log("Operator: " + char);
 		if (self.data === null) {
 			self.isOperator = true;
-			self.priority = priority(char);
+			self.priority = Utilities.priority(char);
 			self.data = char;
 			return;
 		}
 
-		if (self.isOperator && self.right === null && numOperands(self.data) == 2) {
+		if (self.isOperator && self.right === null && Utilities.numOperands(self.data) == 2) {
 			var node = new Node();
 			node.push(char);
 			node.parent = self;
@@ -106,7 +78,7 @@ window.Node = function() {
 			return;
 		}
 
-		if (!self.isOperator || self.priority >= priority(char)) {
+		if (!self.isOperator || self.priority > Utilities.priority(char)) {
 			var node = new Node();
 			node.push(char);
 			node.parent = self.parent;
@@ -122,7 +94,7 @@ window.Node = function() {
 			return;
 		}
 
-		if (self.priority < priority(char)) {
+		if (self.priority <= priority(char)) {
 			self.right.push(char);
 			return;
 		}
@@ -134,9 +106,9 @@ window.Node = function() {
 		// console.log("Pushing " + char);
 		if (char instanceof Node) {
 			pushSubtree(char);
-		} else if (alphabet.includes(char)) {
+		} else if (Utilities.alphabet.includes(char)) {
 			pushTerminal(char);
-		} else if (operators.includes(char)) {
+		} else if (Utilities.operators.includes(char)) {
 			pushOperator(char);
 		} else {
 			console.log("Warning: unknown character \"" + char + "\"");
@@ -155,6 +127,11 @@ window.Node = function() {
 		if (self.right !== null) {
 			self.right.changePriority(delta);
 		}
+	};
+
+	this.isValid = function() {
+		// TODO
+		return true;
 	};
 
 	this.root = function() {
