@@ -9,6 +9,7 @@ window.Node = function() {
 	this.left = null;
 	this.right = null;
 	this.parent = null;
+	this.threadingLink = null;
 
 	function pushSubtree(tree) {
 		// console.log("Pushing subtree...");
@@ -26,7 +27,7 @@ window.Node = function() {
 			return;
 		}
 
-		if (self.right === null) {
+		if (!self.right) {
 			if (Utilities.numOperands(self.data) != 2) {
 				console.log("Error: invalid regex");
 				return;
@@ -50,7 +51,7 @@ window.Node = function() {
 			return;
 		}
 
-		if (self.right === null) {
+		if (!self.right) {
 			if (Utilities.numOperands(self.data) != 2) {
 				console.log("Error: invalid regex");
 				return;
@@ -70,7 +71,7 @@ window.Node = function() {
 			return;
 		}
 
-		if (self.isOperator && self.right === null && Utilities.numOperands(self.data) == 2) {
+		if (self.isOperator && !self.right && Utilities.numOperands(self.data) == 2) {
 			var node = new Node();
 			node.push(char);
 			node.parent = self;
@@ -94,7 +95,7 @@ window.Node = function() {
 			return;
 		}
 
-		if (self.priority <= priority(char)) {
+		if (self.priority <= Utilities.priority(char)) {
 			self.right.push(char);
 			return;
 		}
@@ -102,6 +103,7 @@ window.Node = function() {
 		console.log("Error: invalid regex");
 	}
 
+	// Pushes a new symbol to the tree.
 	this.push = function(char) {
 		// console.log("Pushing " + char);
 		if (char instanceof Node) {
@@ -115,8 +117,9 @@ window.Node = function() {
 		}
 	};
 
+	// Changes the priority of all the operators in this tree by a given amount.
 	this.changePriority = function(delta) {
-		if (self.left !== null) {
+		if (self.left) {
 			self.left.changePriority(delta);
 		}
 
@@ -124,16 +127,35 @@ window.Node = function() {
 			self.priority += delta;
 		}
 
-		if (self.right !== null) {
+		if (self.right) {
 			self.right.changePriority(delta);
 		}
 	};
 
+	// Checks if this tree is valid.
 	this.isValid = function() {
-		// TODO
+		if (self.data === null) {
+			// null trees are not valid
+			return false;
+		}
 		return true;
 	};
 
+	// Adds the threading links to all nodes in this subtree.
+	// A null threading link represents the lambda.
+	this.setThreadingLinks = function() {
+		if (self.left) {
+			var leftLink = self.left.setThreadingLinks();
+			leftLink.threadingLink = self;
+		}
+
+		if (self.right) {
+			return self.right.setThreadingLinks();
+		}
+		return self;
+	};
+
+	// Returns the root of this tree.
 	this.root = function() {
 		var node = self;
 		while (node.parent !== null) {
@@ -147,7 +169,12 @@ window.Node = function() {
  	};
 
 	this.debugHelper =  function(indent) {
-		console.log('-' + Array(indent).join('--'), self.data);
+		var threadingLink = self.threadingLink;
+		if (!threadingLink) {
+			threadingLink = new Node();
+			threadingLink.data = "lambda";
+		}
+		console.log('-' + Array(indent).join('--'), self.data + " (" + threadingLink.data + ")");
 		if (self.left !== null) self.left.debugHelper(indent + 1);
 		if (self.right !== null) self.right.debugHelper(indent + 1);
 	};

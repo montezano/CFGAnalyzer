@@ -37,26 +37,27 @@ window.Regex = function(str) {
 				treeList.push(new Node());
 				continue;
 			}
+			var tree = treeList[treeList.length - 1];
 			if (regex[i] == ')') {
 				if (treeList.length == 1 || !tree.isValid()) {
 					console.log("Error: invalid regex");
 					break;
 				}
-				var subtree = treeList.pop();
-				subtree.changePriority(10);
-				treeList[treeList.length - 1].push(subtree);
+				treeList.pop();
+				tree.changePriority(10);
+				treeList[treeList.length - 1].push(tree);
 
 				// treeList[treeList.length - 1].debug();
 				// console.log("--------------");
 				continue;
 			}
-			var tree = treeList[treeList.length - 1];
 			tree.push(regex[i]);
 			treeList[treeList.length - 1] = tree.root();
 
 			// treeList[treeList.length - 1].debug();
 			// console.log("--------------");
 		}
+		treeList[0].setThreadingLinks();
 		treeList[0].debug();
 
 		return treeList[0];
@@ -79,6 +80,6 @@ window.Regex = function(str) {
 	};
 };
 
-new Regex("a?(ba)").toDeSimoneTree();
+new Regex("ab|cd").toDeSimoneTree();
 
 })();
