@@ -5,14 +5,23 @@ window.Regex = function(str) {
 	var self = this;
 	this.string = str.toString();
 
+	// Checks if this regex is valid.
+	function isValid() {
+		// TODO
+		return true;
+	}
+
 	// Adds concatenation wherever it's implicit. Returns the new regex.
 	function normalize() {
+		if (!isValid()) {
+			console.log("Error: invalid regex");
+			return "";
+		}
 		var noDot = true;
 		var normalizedStr = "";
-		var specialModifier = "?*+)|";
 		for (var i = 0; i < str.length; i++) {
 			if (str[i] == '.') continue;
-			if (!specialModifier.includes(str[i]) && !noDot) {
+			if (!Utilities.operators.includes(str[i]) && !noDot) {
 				normalizedStr += '.';
 			}
 			normalizedStr += str[i];
@@ -80,6 +89,6 @@ window.Regex = function(str) {
 	};
 };
 
-new Regex("ab|cd").toDeSimoneTree();
+new Regex("**").toDeSimoneTree();
 
 })();

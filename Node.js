@@ -138,6 +138,16 @@ window.Node = function() {
 			// null trees are not valid
 			return false;
 		}
+
+		if (self.left && !self.left.isValid()) return false;
+		if (self.right && !self.right.isValid()) return false;
+		if (self.isOperator) {
+			if (!self.left) return false;
+			if (!self.right && Utilities.numOperands(self.data) == 2) {
+				return false;
+			}
+		}
+
 		return true;
 	};
 
