@@ -3,6 +3,8 @@
 
 window.Regex = function(str) {
 	var self = this;
+	var UP = -1;
+	var DOWN = 1;
 	this.string = str.toString();
 
 	// Checks if this regex is valid.
@@ -34,11 +36,9 @@ window.Regex = function(str) {
 		return normalizedStr;
 	}
 
-	// FIXME: should this method be private?
 	// Returns a tree representing the De Simone form of this regex.
-	this.toDeSimoneTree = function() {
+	function toDeSimoneTree() {
 		var regex = normalize();
-		// var root = new Node();
 		var treeList = [new Node()];
 		console.log("Regex: " + regex);
 		for (var i = 0; i < regex.length; i++) {
@@ -67,17 +67,166 @@ window.Regex = function(str) {
 			// console.log("--------------");
 		}
 		treeList[0].setThreadingLinks();
-		treeList[0].debug();
+		treeList[0].setTerminalIndexes();
+		// treeList[0].debug();
 
 		return treeList[0];
 	};
 
+	// Walks through a De Simone tree starting in a single node, returning a
+	// set of all terminal nodes found in the way.
+	function deSimoneCall(node, direction, nodeList, nullIsLambda) {
+		if (node == null) {
+			if (nullIsLambda) {
+				nodeList.push(Node.LAMBDA_INDEX);
+			}
+			return;
+		}
+		if (!node.isOperator) {
+			if (direction == DOWN) {
+				nodeList.push(node.index);
+			} else {
+				deSimoneCall(node.threadingLink, direction, nodeList, true);
+			}
+			return;
+		}
+
+		var left = function() {
+			deSimoneCall(node.left, DOWN, nodeList);
+		};
+
+		var right = function() {
+			deSimoneCall(node.right, DOWN, nodeList);
+		};
+
+		var up = function() {
+			deSimoneCall(node.parent, UP, nodeList, true);
+		};
+
+		// TODO: make this less ugly
+		switch (node.data) {
+			case "?":
+				if (direction == DOWN) {
+					left();
+				}
+				up();
+				break;
+			case "*":
+				left();
+				up();
+				break;
+			case "+":
+				left();
+				if (direction == UP) {
+					up();
+				}
+				break;
+			case "|":
+				if (direction == DOWN) {
+					left();
+					right();
+				} else {
+					right();
+					up();
+				}
+				break;
+			case ".":
+				if (direction == DOWN) {
+					left();
+				} else {
+					right();
+				}
+				break;
+		}
+	};
+
+	// Walks through a De Simone tree starting in one or more nodes, returning
+	// a set of all terminal nodes found in the way.
+	function deSimoneStep(node, direction) {
+		if (node instanceof Array) {
+			var result = [];
+			for (var i = 0; i < node.length; i++) {
+				// console.log(node[i]);
+				if (node[i].direction != UP && node[i].direction != DOWN) continue;
+				result = result.concat(deSimoneStep(node[i], node[i].direction));
+			}
+			return result;
+		}
+
+		if (direction != UP && direction != DOWN) return [];
+		if (!(node instanceof Node)) return [];
+
+		var result = [];
+		deSimoneCall(node, direction, result);
+		return result;
+	};
+
+	// Walks through a De Simone tree, adding new states to a finite automaton
+	// and registering their state compositions to avoid producing equivalent
+	// states.
+	function produceStates(subtrees, dfa, stateCompositions) {
+		if (!(subtrees instanceof Array)) {
+			subtrees.direction = DOWN;
+			subtrees = [subtrees];
+		}
+		var composition = deSimoneStep(subtrees);
+		Utilities.removeDuplicates(composition);
+		for (var i in stateCompositions) {
+			if (stateCompositions.hasOwnProperty(i)) {
+				if (Utilities.isSameArray(stateCompositions[i], composition)) {
+					return;
+				}
+			}
+		}
+		console.log(composition);
+
+		var stateName = "q" + dfa.stateList.length;
+		dfa.addState(stateName);
+
+		// console.log("=====================");
+		var nodeListByTerminal = {};
+		for (var i = 0; i < composition.length; i++) {
+			if (composition[i] == Node.LAMBDA_INDEX) {
+				nodeListByTerminal.lambda = true;
+				continue;
+			}
+			var node = subtrees[0].root().searchByIndex(composition[i]);
+			if (!nodeListByTerminal.hasOwnProperty(node.data)) {
+				nodeListByTerminal[node.data] = [];
+			}
+
+			node.direction = UP;
+			nodeListByTerminal[node.data].push(node);
+		}
+		// console.log(nodeListByTerminal);
+
+		if (nodeListByTerminal.lambda) {
+			dfa.acceptState(stateName);
+		}
+		stateCompositions[stateName] = composition;
+
+		for (var i in nodeListByTerminal) {
+			if (i == "lambda") continue;
+			if (nodeListByTerminal.hasOwnProperty(i)) {
+				produceStates(nodeListByTerminal[i], dfa, stateCompositions);
+			}
+		}
+	};
+
 	// Returns a finite automaton representing this regex.
 	this.toFiniteAutomaton = function() {
-		var tree = self.toDeSimoneTree();
-		var automaton = new FiniteAutomaton();
-		// TODO
-		return automaton;
+		var tree = toDeSimoneTree();
+		var dfa = new FiniteAutomaton();
+
+		var stateCompositions = {};
+		produceStates(tree, dfa, stateCompositions);
+
+		// dfa.addStates("q0", "q1", "q2");
+		// dfa.acceptState("q2");
+		// dfa.addTransition("q0", "a", "q1");
+		// dfa.addTransition("q1", "b", "q2");
+		// dfa.addTransition("q2", "b", "q2");
+		return dfa;
 	};
 
 	// Checks if this regex is equivalent to another one.
@@ -89,6 +238,9 @@ window.Regex = function(str) {
 	};
 };
 
-// new Regex("abc").toDeSimoneTree();
+// FIXME: some expressions cause infinite recursion, e.g ab*
+var regex = new Regex("(a|bc)*");
+// console.log(regex.toDeSimoneTree());
+regex.toFiniteAutomaton();
 
 })();

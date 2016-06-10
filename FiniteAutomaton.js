@@ -7,6 +7,8 @@ window.FiniteAutomaton = function() {
 	this.transitions = {};
 	this.initialState = null;
 	this.acceptingStates = [];
+
+	// Null represents the error state.
 	this.currentState = null;
 
 	// Adds a new state to this automaton and marks it as the initial state
@@ -16,6 +18,7 @@ window.FiniteAutomaton = function() {
 			self.stateList.push(state);
 			if (self.initialState === null) {
 				self.initialState = state;
+				self.currentState = state;
 			}
 		}
 	};
@@ -26,7 +29,7 @@ window.FiniteAutomaton = function() {
 		for (var i = 0; i < arguments.length; i++) {
 			self.addState(arguments[i]);
 		}
-	}
+	};
 
 	// Adds a new accepting state to this automaton.
 	this.acceptState = function(state) {
@@ -57,17 +60,30 @@ window.FiniteAutomaton = function() {
 	this.read = function(input) {
 		if (input == null) return;
 		input = input.toString();
-		if (input.length != 1) return;
-		if (self.stateList.length == 0) return;
-		if (self.initialState === null && self.currentState === null) return;
-		if (self.currentState === null) {
-			self.currentState = self.initialState;
+		var length = input.length;
+		if (length < 1) return;
+		if (length > 1) {
+			for (var i = 0; i < length; i++) {
+				self.read(input[i]);
+			}
+			return;
 		}
 
-		if (!self.transitions.hasOwnProperty(self.currentState)) return;
-		if (!self.transitions[self.currentState].hasOwnProperty(input)) return;
+		if (self.stateList.length == 0) return;
+		if (self.initialState === null || self.currentState === null) return;
+
+		if (!self.transitions.hasOwnProperty(self.currentState)
+			|| !self.transitions[self.currentState].hasOwnProperty(input)) {
+			self.currentState = null;
+			return;
+		}
 		// FIXME: if we need to handle non-determinism this will need to be changed.
 		self.currentState = self.transitions[self.currentState][input][0];
+	};
+
+	// Returns to the initial state.
+	this.reset = function() {
+		self.currentState = self.initialState;
 	};
 
 	// Checks if this automaton is on an accepting state.
@@ -95,14 +111,14 @@ window.FiniteAutomaton = function() {
 	};
 };
 
-var dfa = new FiniteAutomaton();
-dfa.addStates("q0", "q1", "q2");
-dfa.acceptState("q2");
-dfa.addTransition("q0", "a", "q1");
-dfa.addTransition("q1", "b", "q2");
+// var dfa = new FiniteAutomaton();
+// dfa.addStates("q0", "q1", "q2");
+// dfa.acceptState("q2");
+// dfa.addTransition("q0", "a", "q1");
+// dfa.addTransition("q1", "b", "q2");
+// dfa.addTransition("q2", "b", "q2");
 
-dfa.read("a");
-dfa.read("b");
-dfa.debug();
+// dfa.read("abb");
+// dfa.debug();
 
 })();

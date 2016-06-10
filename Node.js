@@ -10,6 +10,7 @@ window.Node = function() {
 	this.right = null;
 	this.parent = null;
 	this.threadingLink = null;
+	this.index = null;
 
 	function pushSubtree(tree) {
 		// console.log("Pushing subtree...");
@@ -165,6 +166,35 @@ window.Node = function() {
 		return self;
 	};
 
+	this.setTerminalIndexes = function(valueContainer) {
+		if (valueContainer == null) valueContainer = { index: 1 };
+		if (!self.isOperator) {
+			self.index = valueContainer.index++;
+		}
+
+		if (self.left) {
+			self.left.setTerminalIndexes(valueContainer);
+		}
+
+		if (self.right) {
+			self.right.setTerminalIndexes(valueContainer);
+		}
+	};
+
+	this.searchByIndex = function(index) {
+		index *= 1;
+		if (isNaN(index)) return null;
+
+		if (self.index == index) {
+			return this;
+		}
+
+		var node = null;
+		if (self.left) node = self.left.searchByIndex(index);
+		if (self.right) node = node || self.right.searchByIndex(index);
+		return node;
+	};
+
 	// Returns the root of this tree.
 	this.root = function() {
 		var node = self;
@@ -189,5 +219,7 @@ window.Node = function() {
 		if (self.right !== null) self.right.debugHelper(indent + 1);
 	};
 };
+
+Node.LAMBDA_INDEX = -1;
 
 })();
