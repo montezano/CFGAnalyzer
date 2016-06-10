@@ -12,6 +12,30 @@ window.Node = function() {
 	this.threadingLink = null;
 	this.index = null;
 
+	this.override = function(oldTree, newTree) {
+		if (self.parent == oldTree) {
+			self.parent = newTree;
+		}
+
+		if (self.left) {
+			if (self.left == oldTree) {
+				self.left = newTree;
+			} else {
+				self.left.override(oldTree, newTree);
+			}
+			if (self.left.parent == oldTree) self.left.parent = newTree;
+		}
+
+		if (self.right) {
+			if (self.right == oldTree) {
+				self.right = newTree;
+			} else {
+				self.right.override(oldTree, newTree);
+			}
+			if (self.right.parent == oldTree) self.right.parent = newTree;
+		}
+	}
+
 	function pushSubtree(tree) {
 		// console.log("Pushing subtree...");
 		if (self.data === null) {
@@ -20,6 +44,8 @@ window.Node = function() {
 			self.data = tree.data;
 			self.left = tree.left;
 			self.right = tree.right;
+			self.index = tree.index;
+			self.override(tree, self);
 			return;
 		}
 

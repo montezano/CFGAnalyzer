@@ -57,7 +57,6 @@ window.Regex = function(str) {
 	function toDeSimoneTree() {
 		var regex = normalize();
 		var treeList = [new Node()];
-		console.log("Regex: " + regex);
 		for (var i = 0; i < regex.length; i++) {
 			if (regex[i] == '(') {
 				treeList.push(new Node());
@@ -132,6 +131,8 @@ window.Regex = function(str) {
 					right();
 					break;
 				case Utilities.VISIT_NEXT:
+					// Fixes a bug where the | operator erroneously goes to
+					// lambda when going up
 					while (node.right) {
 						node = node.right;
 					}
@@ -174,11 +175,10 @@ window.Regex = function(str) {
 		for (var i in stateCompositions) {
 			if (stateCompositions.hasOwnProperty(i)) {
 				if (Utilities.isSameArray(stateCompositions[i], composition)) {
-					return;
+					return composition;
 				}
 			}
 		}
-		console.log(composition);
 
 		var stateName = "q" + dfa.stateList.length;
 		dfa.addState(stateName);
@@ -191,6 +191,12 @@ window.Regex = function(str) {
 				continue;
 			}
 			var node = subtrees[0].root().searchByIndex(composition[i]);
+			if (node === null) {
+				console.log("TRETA ALERT");
+				// console.log(subtrees[0]);
+				// console.log(composition[i]);
+				// console.log(subtrees[0].root());
+			}
 			if (!nodeListByTerminal.hasOwnProperty(node.data)) {
 				nodeListByTerminal[node.data] = [];
 			}
@@ -205,42 +211,58 @@ window.Regex = function(str) {
 		}
 		stateCompositions[stateName] = composition;
 
+		var targetCompositions = {};
 		for (var i in nodeListByTerminal) {
 			if (i == "lambda") continue;
 			if (nodeListByTerminal.hasOwnProperty(i)) {
-				produceStates(nodeListByTerminal[i], dfa, stateCompositions);
+				var targetComposition = produceStates(nodeListByTerminal[i], dfa, stateCompositions);
+				targetCompositions[i] = targetComposition;
 			}
 		}
+		stateCompositions[stateName].target = targetCompositions;
+		return composition;
 	};
 
 	// Returns a finite automaton representing this regex.
 	this.toFiniteAutomaton = function() {
+		console.log("Regex: " + self.string);
 		var tree = toDeSimoneTree();
-		tree.debug();
+		// tree.debug();
 		var dfa = new FiniteAutomaton();
 
 		var stateCompositions = {};
 		produceStates(tree, dfa, stateCompositions);
 
-		// dfa.addStates("q0", "q1", "q2");
-		// dfa.acceptState("q2");
-		// dfa.addTransition("q0", "a", "q1");
-		// dfa.addTransition("q1", "b", "q2");
-		// dfa.addTransition("q2", "b", "q2");
+		for (var stateName in stateCompositions) {
+			if (!stateCompositions.hasOwnProperty(stateName)) continue;
+			var target = stateCompositions[stateName].target;
+			for (var targetName in stateCompositions) {
+				if (!stateCompositions.hasOwnProperty(targetName)) continue;
+				for (var input in target) {
+					if (target.hasOwnProperty(input)) {
+						if (Utilities.isSameArray(target[input], stateCompositions[targetName])) {
+							dfa.addTransition(stateName, input, targetName);
+						}
+					}
+				}
+			}
+		}
+
 		return dfa;
 	};
 
 	// Checks if this regex is equivalent to another one.
 	this.isEquivalentTo = function(other) {
 		if (other instanceof Regex) {
-			// TODO
+			return self.toFiniteAutomaton().isEquivalentTo(other.toFiniteAutomaton());
 		}
 		return false;
 	};
 };
 
-// var regex = new Regex("b*(ab*ab*)*ab*");
-var regex = new Regex("(a|bc)*");
+var regex = new Regex("ab*c");
 // console.log(regex.toDeSimoneTree());
-regex.toFiniteAutomaton();
+var dfa = regex.toFiniteAutomaton();
+dfa.debug();
+
 })();

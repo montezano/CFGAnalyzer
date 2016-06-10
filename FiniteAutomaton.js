@@ -91,6 +91,14 @@ window.FiniteAutomaton = function() {
 		return self.acceptingStates.includes(self.currentState);
 	};
 
+	// Checks if this automaton is equivalent to another one.
+	this.isEquivalentTo = function(other) {
+		if (other instanceof FiniteAutomaton) {
+			// TODO
+		}
+		return false;
+	};
+
 	this.debug = function() {
 		console.log("Current State: "  + self.currentState);
 		console.log("Is accepting: " + (self.accepts() ? "Yes" : "No"));
