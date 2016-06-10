@@ -9,7 +9,24 @@ window.Regex = function(str) {
 
 	// Checks if this regex is valid.
 	function isValid() {
-		// TODO
+		var modifier = ["?", "*", "+"];
+		var lastIsModifier = false;
+		for (var i = 0; i < str.length; i++) {
+			var currIsModifier = modifier.includes(str[i]);
+			if ((str[i-1] == "." || str[i-1] == "(") &&
+				(str[i] == ")" || currIsModifier)) {
+				return false;
+			}
+			if ((str[i-1] == "(" || lastIsModifier) && currIsModifier) {
+				return false;
+			}
+			if (!Utilities.operators.includes(str[i]) &&
+			 	!["(", ")"].includes(str[i]) &&
+				!Utilities.alphabet.includes(str[i])) {
+				return false;
+			}
+			lastIsModifier = currIsModifier;
+		}
 		return true;
 	}
 
@@ -226,5 +243,4 @@ window.Regex = function(str) {
 var regex = new Regex("(a|bc)*");
 // console.log(regex.toDeSimoneTree());
 regex.toFiniteAutomaton();
-
 })();
