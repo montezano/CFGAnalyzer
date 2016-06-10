@@ -21,7 +21,7 @@ window.Regex = function(str) {
 		var normalizedStr = "";
 		for (var i = 0; i < str.length; i++) {
 			if (str[i] == '.') continue;
-			if (!Utilities.operators.includes(str[i]) && !noDot) {
+			if ((!Utilities.operators.includes(str[i]) && str[i] != ')') && !noDot) {
 				normalizedStr += '.';
 			}
 			normalizedStr += str[i];
@@ -89,6 +89,6 @@ window.Regex = function(str) {
 	};
 };
 
-new Regex("**").toDeSimoneTree();
+// new Regex("abc").toDeSimoneTree();
 
 })();
