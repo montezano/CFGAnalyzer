@@ -5,7 +5,6 @@ var $ = function(selector) {
 	return document.querySelectorAll(selector);
 };
 
-// TODO: decidir o idioma da documentação
 var onFileOpen = function(content) {
 	// TODO
 	console.log(content);

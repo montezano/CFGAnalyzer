@@ -119,14 +119,4 @@ window.FiniteAutomaton = function() {
 	};
 };
 
-// var dfa = new FiniteAutomaton();
-// dfa.addStates("q0", "q1", "q2");
-// dfa.acceptState("q2");
-// dfa.addTransition("q0", "a", "q1");
-// dfa.addTransition("q1", "b", "q2");
-// dfa.addTransition("q2", "b", "q2");
-
-// dfa.read("abb");
-// dfa.debug();
-
 })();

@@ -1,6 +1,16 @@
 (function(){
 "use strict";
 
+/* Manages a node of a threaded tree, providing easy insertion of:
+ *  - terminal symbols;
+ *  - operators;
+ *  - subtrees.
+ * Additionally, there are facilities for:
+ *  - changing the priority of all operators in the tree;
+ *  - calculating and setting the thread links of all nodes;
+ *  - finding a terminal node by its in-order index;
+ *  - getting the root of the tree.
+ */
 window.Node = function() {
 	var self = this;
 	this.isOperator = false;
@@ -12,6 +22,7 @@ window.Node = function() {
 	this.threadingLink = null;
 	this.index = null;
 
+	// Changes all pointers to a tree to another tree.
 	this.override = function(oldTree, newTree) {
 		if (self.parent == oldTree) {
 			self.parent = newTree;
@@ -174,7 +185,6 @@ window.Node = function() {
 				return false;
 			}
 		}
-
 		return true;
 	};
 
@@ -192,6 +202,7 @@ window.Node = function() {
 		return self;
 	};
 
+	// Calculates and sets the thread link of all nodes in this tree.
 	this.setTerminalIndexes = function(valueContainer) {
 		if (valueContainer == null) valueContainer = { index: 1 };
 		if (!self.isOperator) {

@@ -1,11 +1,15 @@
 (function(){
 "use strict";
 
+// Manages a regular expression, providing features such as conversion to
+// a deterministic finite automaton and equivalence check between regular
+// expressions.
 window.Regex = function(str) {
 	var self = this;
 	var UP = -1;
 	var DOWN = 1;
-	this.string = str.toString();
+	str = str.toString();
+	this.string = str;
 
 	// Checks if this regex is valid.
 	function isValid() {
@@ -191,12 +195,6 @@ window.Regex = function(str) {
 				continue;
 			}
 			var node = subtrees[0].root().searchByIndex(composition[i]);
-			if (node === null) {
-				console.log("TRETA ALERT");
-				// console.log(subtrees[0]);
-				// console.log(composition[i]);
-				// console.log(subtrees[0].root());
-			}
 			if (!nodeListByTerminal.hasOwnProperty(node.data)) {
 				nodeListByTerminal[node.data] = [];
 			}
@@ -225,11 +223,8 @@ window.Regex = function(str) {
 
 	// Returns a finite automaton representing this regex.
 	this.toFiniteAutomaton = function() {
-		console.log("Regex: " + self.string);
 		var tree = toDeSimoneTree();
-		// tree.debug();
 		var dfa = new FiniteAutomaton();
-
 		var stateCompositions = {};
 		produceStates(tree, dfa, stateCompositions);
 
@@ -247,7 +242,6 @@ window.Regex = function(str) {
 				}
 			}
 		}
-
 		return dfa;
 	};
 
@@ -260,8 +254,9 @@ window.Regex = function(str) {
 	};
 };
 
-var regex = new Regex("ab*c");
-// console.log(regex.toDeSimoneTree());
+var expr = "(a|b)(c|d)*(e|f+g)+";
+console.log("Regex: " + expr);
+var regex = new Regex(expr);
 var dfa = regex.toFiniteAutomaton();
 dfa.debug();
 

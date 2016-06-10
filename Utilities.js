@@ -24,7 +24,7 @@ window.Utilities = {
 		"?": [1, 3, [LEFT, NEXT], [NEXT]],
 		"*": [1, 3, [LEFT, NEXT], [LEFT, NEXT]],
 		"+": [1, 3, [LEFT], [LEFT, NEXT]],
-		"|": [2, 1, [LEFT, RIGHT], [RIGHT, NEXT]],
+		"|": [2, 1, [LEFT, RIGHT], [NEXT]],
 		".": [2, 2, [LEFT], [RIGHT]]
 	},
 
