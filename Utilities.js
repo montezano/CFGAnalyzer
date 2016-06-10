@@ -1,18 +1,31 @@
 (function(){
 "use strict";
 
+var LEFT = 1;
+var RIGHT = 2;
+var NEXT = 3;
+
 window.Utilities = {
 	// A list of valid terminal terms (it's filled in the loops below)
 	alphabet: ["&"],
 
-	// Structure:
-	// "operator": [number of operands, priority]
+	// De Simone traversal commands
+	VISIT_LEFT: LEFT,
+	VISIT_RIGHT: RIGHT,
+	VISIT_NEXT: NEXT,
+
+	/* Structure:
+	 * "operator": [number of operands,
+	 *				priority,
+	 *				[descending commands],
+	 *				[ascending commands]]
+	 */
 	operatorInfo: {
-		"?": [1, 3],
-		"*": [1, 3],
-		"+": [1, 3],
-		"|": [2, 1],
-		".": [2, 2]
+		"?": [1, 3, [LEFT, NEXT], [NEXT]],
+		"*": [1, 3, [LEFT, NEXT], [LEFT, NEXT]],
+		"+": [1, 3, [LEFT], [LEFT, NEXT]],
+		"|": [2, 1, [LEFT, RIGHT], [RIGHT, NEXT]],
+		".": [2, 2, [LEFT], [RIGHT]]
 	},
 
 	// A list containing only the operator symbols (filled below)

@@ -73,20 +73,22 @@ window.Regex = function(str) {
 		return treeList[0];
 	};
 
+	// var k = 0;
 	// Walks through a De Simone tree starting in a single node, returning a
 	// set of all terminal nodes found in the way.
-	function deSimoneCall(node, direction, nodeList, nullIsLambda) {
+	function deSimoneCall(node, direction, nodeList) {
+		// if (node != null) {
+		// 	console.log("deSimoneCall(" + node.data + "(" + node.length + ")," + direction + ",(" + nodeList.length + ")," + nullIsLambda + ")");
+		// } else {
+		// 	console.log("deSimoneCall(NULL," + direction + ",(" + nodeList.length + ")," + nullIsLambda + ")");			
+		// }
+		// if (k++ >= 10000) {
+		// 	console.log("Aborting...");
+		// 	return;
+		// }
 		if (node == null) {
-			if (nullIsLambda) {
+			if (direction == UP) {
 				nodeList.push(Node.LAMBDA_INDEX);
-			}
-			return;
-		}
-		if (!node.isOperator) {
-			if (direction == DOWN) {
-				nodeList.push(node.index);
-			} else {
-				deSimoneCall(node.threadingLink, direction, nodeList, true);
 			}
 			return;
 		}
@@ -99,50 +101,40 @@ window.Regex = function(str) {
 			deSimoneCall(node.right, DOWN, nodeList);
 		};
 
-		var up = function() {
-			deSimoneCall(node.parent, UP, nodeList, true);
+		var next = function() {
+			deSimoneCall(node.threadingLink, UP, nodeList);
 		};
 
-		// TODO: make this less ugly
-		switch (node.data) {
-			case "?":
-				if (direction == DOWN) {
+		if (!node.isOperator) {
+			if (direction == DOWN) {
+				nodeList.push(node.index);
+			} else {
+				next();
+			}
+			return;
+		}
+
+		var heuristicIndex = (direction == DOWN) ? 2 : 3;
+		var visitHeuristic = Utilities.operatorInfo[node.data][heuristicIndex];
+		for (var i = 0; i < visitHeuristic.length; i++) {
+			switch (visitHeuristic[i]) {
+				case Utilities.VISIT_LEFT:
 					left();
-				}
-				up();
-				break;
-			case "*":
-				left();
-				up();
-				break;
-			case "+":
-				left();
-				if (direction == UP) {
-					up();
-				}
-				break;
-			case "|":
-				if (direction == DOWN) {
-					left();
+					break;
+				case Utilities.VISIT_RIGHT:
 					right();
-				} else {
-					right();
-					up();
-				}
-				break;
-			case ".":
-				if (direction == DOWN) {
-					left();
-				} else {
-					right();
-				}
-				break;
+					break;
+				case Utilities.VISIT_NEXT:
+					next();
+					break;
+			}
 		}
 	};
 
 	// Walks through a De Simone tree starting in one or more nodes, returning
 	// a set of all terminal nodes found in the way.
 	function deSimoneStep(node, direction) {
+		// console.log("deSimoneStep(" + node.data + "(" + node.length + ")," + direction + ")");
 		if (node instanceof Array) {
 			var result = [];
 			for (var i = 0; i < node.length; i++) {
@@ -238,8 +230,8 @@ window.Regex = function(str) {
 	};
 };
 
-// FIXME: some expressions cause infinite recursion, e.g ab*
-var regex = new Regex("(a|bc)*");
+var regex = new Regex("b*(ab*ab*)*ab*");
+// var regex = new Regex("(a|bc)*");
 // console.log(regex.toDeSimoneTree());
 regex.toFiniteAutomaton();
 
