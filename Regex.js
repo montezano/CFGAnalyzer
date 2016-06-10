@@ -73,19 +73,9 @@ window.Regex = function(str) {
 		return treeList[0];
 	};
 
-	// var k = 0;
 	// Walks through a De Simone tree starting in a single node, returning a
 	// set of all terminal nodes found in the way.
 	function deSimoneCall(node, direction, nodeList) {
-		// if (node != null) {
-		// 	console.log("deSimoneCall(" + node.data + "(" + node.length + ")," + direction + ",(" + nodeList.length + ")," + nullIsLambda + ")");
-		// } else {
-		// 	console.log("deSimoneCall(NULL," + direction + ",(" + nodeList.length + ")," + nullIsLambda + ")");			
-		// }
-		// if (k++ >= 10000) {
-		// 	console.log("Aborting...");
-		// 	return;
-		// }
 		if (node == null) {
 			if (direction == UP) {
 				nodeList.push(Node.LAMBDA_INDEX);
@@ -125,6 +115,9 @@ window.Regex = function(str) {
 					right();
 					break;
 				case Utilities.VISIT_NEXT:
+					while (node.right) {
+						node = node.right;
+					}
 					next();
 					break;
 			}
@@ -134,11 +127,9 @@ window.Regex = function(str) {
 	// Walks through a De Simone tree starting in one or more nodes, returning
 	// a set of all terminal nodes found in the way.
 	function deSimoneStep(node, direction) {
-		// console.log("deSimoneStep(" + node.data + "(" + node.length + ")," + direction + ")");
 		if (node instanceof Array) {
 			var result = [];
 			for (var i = 0; i < node.length; i++) {
-				// console.log(node[i]);
 				if (node[i].direction != UP && node[i].direction != DOWN) continue;
 				result = result.concat(deSimoneStep(node[i], node[i].direction));
 			}
@@ -208,6 +199,7 @@ window.Regex = function(str) {
 	// Returns a finite automaton representing this regex.
 	this.toFiniteAutomaton = function() {
 		var tree = toDeSimoneTree();
+		tree.debug();
 		var dfa = new FiniteAutomaton();
 
 		var stateCompositions = {};
@@ -230,8 +222,8 @@ window.Regex = function(str) {
 	};
 };
 
-var regex = new Regex("b*(ab*ab*)*ab*");
-// var regex = new Regex("(a|bc)*");
+// var regex = new Regex("b*(ab*ab*)*ab*");
+var regex = new Regex("(a|bc)*");
 // console.log(regex.toDeSimoneTree());
 regex.toFiniteAutomaton();
 
