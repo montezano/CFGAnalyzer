@@ -1,0 +1,48 @@
+body {
+	font-family: arial;
+	font-size: 16px;
+	margin: 0;
+}
+
+#file_selector {
+	display: none;
+}
+
+#content {
+	display: table;
+	height: 100%;
+}
+
+#sidebar, #main {
+	display: table-cell;
+	padding: 5px;
+}
+
+#sidebar {
+	border-right: 1px solid black;
+	vertical-align: top;
+}
+
+#file_buttons {
+	margin-bottom: 5px;
+	text-align: center;
+}
+
+.automaton {
+	display: inline-table;
+	margin-right: 20px;
+}
+
+.automaton td {
+	border: 1px solid black;
+	padding: 10px;
+	text-align: center;
+}
+
+.automaton .emptyCell {
+	opacity: 0;
+}
+
+.automaton tr:first-child td, .automaton td:first-child {
+	background-color: #DDD;
+}

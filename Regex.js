@@ -12,7 +12,7 @@ window.Regex = function(str) {
 	this.string = str;
 
 	// Checks if this regex is valid.
-	function isValid() {
+	this.isValid = function() {
 		var modifier = ["?", "*", "+"];
 		var lastIsModifier = false;
 		for (var i = 0; i < str.length; i++) {
@@ -36,9 +36,8 @@ window.Regex = function(str) {
 
 	// Adds concatenation wherever it's implicit. Returns the new regex.
 	function normalize() {
-		if (!isValid()) {
-			console.log("Error: invalid regex");
-			return "";
+		if (!self.isValid()) {
+			throw Utilities.INVALID_REGEX;
 		}
 		var noDot = true;
 		var normalizedStr = "";
@@ -69,8 +68,7 @@ window.Regex = function(str) {
 			var tree = treeList[treeList.length - 1];
 			if (regex[i] == ')') {
 				if (treeList.length == 1 || !tree.isValid()) {
-					console.log("Error: invalid regex");
-					break;
+					throw Utilities.INVALID_REGEX;
 				}
 				treeList.pop();
 				tree.changePriority(10);
@@ -254,10 +252,10 @@ window.Regex = function(str) {
 	};
 };
 
-var expr = "(a|b)(c|d)*(e|f+g)+";
-console.log("Regex: " + expr);
-var regex = new Regex(expr);
-var dfa = regex.toFiniteAutomaton();
-dfa.debug();
+// var expr = "(a|b)(c|d)*(e|f+g)+";
+// console.log("Regex: " + expr);
+// var regex = new Regex(expr);
+// var dfa = regex.toFiniteAutomaton();
+// dfa.debug();
 
 })();

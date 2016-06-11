@@ -4,16 +4,28 @@
 <meta http-equiv="Content-type" content="text/html;charset=utf-8">
 <script src="Utilities.js"></script>
 <script src="File.js"></script>
-<script src="Node.js"></script><!-- no pun intended -->
+<script src="Node.js"></script>
 <script src="FiniteAutomaton.js"></script>
 <script src="Regex.js"></script>
+<script src="Workspace.js"></script>
 <script src="main.js"></script>
 <script src="tests.js"></script>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<input type="button" id="save" value="Save">
 <input type="file" id="file_selector">
+
+<div id="content">
+	<div id="sidebar">
+		<div id="file_buttons">
+			<input type="button" id="open" value="Open">
+			<input type="button" id="save" value="Save">
+		</div>
+		<input type="text" id="regex" placeholder="expression here...">
+	</div>
+	<div id="main"></div>
+</div>
 
 </body>
 </html>

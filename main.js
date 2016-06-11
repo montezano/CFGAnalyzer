@@ -1,27 +1,36 @@
 (function(){
 "use strict";
 
-var $ = function(selector) {
-	return document.querySelectorAll(selector);
-};
+var $ = Utilities.$;
 
+var workspace = new Workspace();
 var onFileOpen = function(content) {
-	// TODO
-	console.log(content);
+	workspace = Workspace.load(content);
 };
 
 addEventListener("load", function() {
-
-	$("#save")[0].addEventListener("click", function(ev) {
-		// TODO
-		File.save("Hello, world!");
-	});
-
-	$("#file_selector")[0].addEventListener("change", function(ev) {
+	workspace.addRegex("ab*c");
+	workspace.addRegex("ac+");	
+	$("#file_selector").addEventListener("change", function(ev) {
 		var file = ev.target.files[0];
 		File.open(file, onFileOpen);
 	});
 
+	$("#open").addEventListener("click", function() {
+		$("#file_selector").click();
+	});
+
+	$("#save").addEventListener("click", function() {
+		File.save(workspace.toString());
+	});
+
+	$("#regex").addEventListener("keyup", function(ev) {
+		if (ev.keyCode == 13) {
+			var value = this.value;
+			this.value = "";
+			workspace.addRegex(value);
+		}
+	});
 });
 
 })();

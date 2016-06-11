@@ -91,10 +91,67 @@ window.FiniteAutomaton = function() {
 		return self.acceptingStates.includes(self.currentState);
 	};
 
+	// Returns the minimized form of this automaton.
+	this.minimize = function() {
+		var result = new FiniteAutomaton();
+		// TODO
+		return result;
+	};
+
+	// Returns a new automaton whose recognized language is the complement
+	// of this one.
+	// TODO: handle the error state
+	this.complement = function() {
+		var result = new FiniteAutomaton();
+		for (var i = 0; i < self.stateList.length; i++) {
+			var state = self.stateList[i];
+			result.addState(state);
+			if (!self.acceptingStates.includes(state)) {
+				result.acceptState(state);
+			}
+		}
+		result.initialState = self.initialState;
+		result.transitions = self.transitions;
+		return result;
+	};
+
+	// Returns a new automaton whose recognized language is the union
+	// between this and another automaton's languages.
+	this.union = function(other) {
+		if (other instanceof FiniteAutomaton) {
+			var result = new FiniteAutomaton();
+			// TODO
+			return result;
+		}
+		return self;
+	};
+
+	// Returns a new automaton whose recognized language is the intersection
+	// between this and another automaton's languages.
+	// Uses the property M1 intersec M2 = not(not(M1) union not(M2))
+	this.intersection = function(other) {
+		var result = new FiniteAutomaton();
+		if (other instanceof FiniteAutomaton) {
+			var c1 = self.complement();
+			var c2 = other.complement();
+			return c1.union(c2).complement();
+		}
+		return result;
+	};
+
+	// Checks if this automaton's regular language contains another
+	// automaton's regular language.
+	this.contains = function(other) {
+		if (other instanceof FiniteAutomaton) {
+			return self.intersection(other.complement()).isEmpty();
+		}
+		return false;
+	};
+
 	// Checks if this automaton is equivalent to another one.
 	this.isEquivalentTo = function(other) {
 		if (other instanceof FiniteAutomaton) {
-			// TODO
+			return self.contains(other) && other.contains(self);
 		}
 		return false;
 	};

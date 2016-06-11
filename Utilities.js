@@ -31,6 +31,9 @@ window.Utilities = {
 	// A list containing only the operator symbols (filled below)
 	operators: null,
 
+	// The standard error message.
+	INVALID_REGEX: "Error: Invalid regular expression",
+
 	// Returns the number of operands of an operator.
 	numOperands: function(operator) {
 		return Utilities.operatorInfo[operator][0];
@@ -60,6 +63,14 @@ window.Utilities = {
 			}
 		}
 		return true;
+	},
+
+	// Retrieves one or more nodes of the DOM according to a CSS selector.
+	$: function(selector) {
+		if (selector[0] == '#') {
+			return document.querySelector(selector);
+		}
+		return document.querySelectorAll(selector);
 	}
 };
 
