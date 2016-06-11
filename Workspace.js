@@ -29,30 +29,24 @@ window.Workspace = function() {
 	}
 
 	// Produces an HTML version of an automaton.
-	function printableAutomaton(automaton) {
+	function printableAutomaton(regex, automaton) {
 		if (automaton instanceof FiniteAutomaton) {
-			var transitions = automaton.transitions;
-			var alphabet = [];
-			for (var state in transitions) {
-				if (transitions.hasOwnProperty(state)) {
-					for (var i in transitions[state]) {
-						if (transitions[state].hasOwnProperty(i)) {
-							if (!alphabet.includes(i)) {
-								alphabet.push(i);
-							}
-						}
-					}
-				}
-			}
-			alphabet.sort();
-
 			var table = node("table");
 			table.classList.add("automaton");
+
+			var alphabet = automaton.getAlphabet();
 			var header = node("tr");
-			var emptyNode = node("td");
-			emptyNode.classList.add("emptyCell");
-			header.appendChild(emptyNode);
-			var row, cell;
+			var cell = node("td");
+			cell.colSpan = alphabet.length + 1;
+			cell.innerHTML = regex.string;
+			header.appendChild(cell);
+			table.appendChild(header);
+
+			header = node("tr");
+			cell = node("td");
+			cell.classList.add("emptyCell");
+			header.appendChild(cell);
+
 			for (var i = 0; i < alphabet.length; i++) {
 				cell = node("td");
 				cell.innerHTML = alphabet[i];
@@ -60,6 +54,8 @@ window.Workspace = function() {
 			}
 			table.appendChild(header);
 
+			var row;
+			var transitions = automaton.transitions;
 			for (var state in transitions) {
 				row = node("tr");
 				cell = node("td");
@@ -112,7 +108,7 @@ window.Workspace = function() {
 
 		var automatonNode = $("#aut" + obj.id);
 		if (!automatonNode && obj.visible) {
-			container().appendChild(printableAutomaton(obj.automaton));
+			container().appendChild(printableAutomaton(obj.regex, obj.automaton));
 		} else if (automatonNode && !obj.visible) {
 			automatonNode.parentElement.removeChild(automatonNode);
 		}

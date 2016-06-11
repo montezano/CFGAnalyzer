@@ -91,6 +91,27 @@ window.FiniteAutomaton = function() {
 		return self.acceptingStates.includes(self.currentState);
 	};
 
+	// Returns the sorted alphabet of this automaton, based on its
+	// existing transitions.
+	this.getAlphabet = function() {
+		var transitions = self.transitions;
+		var alphabet = [];
+		for (var state in transitions) {
+			if (transitions.hasOwnProperty(state)) {
+				for (var i in transitions[state]) {
+					if (transitions[state].hasOwnProperty(i)) {
+						if (!alphabet.includes(i)) {
+							alphabet.push(i);
+						}
+					}
+				}
+			}
+		}
+		alphabet.sort();
+		return alphabet;
+	}
+
+
 	// Returns the minimized form of this automaton.
 	this.minimize = function() {
 		var result = new FiniteAutomaton();
@@ -137,6 +158,12 @@ window.FiniteAutomaton = function() {
 			return c1.union(c2).complement();
 		}
 		return result;
+	};
+
+	// Checks if this automaton doesn't accept any expression.
+	this.isEmpty = function() {
+		// TODO
+		return false;
 	};
 
 	// Checks if this automaton's regular language contains another

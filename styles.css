@@ -39,10 +39,10 @@ body {
 	text-align: center;
 }
 
-.automaton .emptyCell {
+/*.automaton .emptyCell {
 	opacity: 0;
-}
+}*/
 
-.automaton tr:first-child td, .automaton td:first-child {
+.automaton td:first-child, .automaton tr:nth-child(2) td {
 	background-color: #DDD;
 }

@@ -9,8 +9,6 @@ var onFileOpen = function(content) {
 };
 
 addEventListener("load", function() {
-	workspace.addRegex("ab*c");
-	workspace.addRegex("ac+");	
 	$("#file_selector").addEventListener("change", function(ev) {
 		var file = ev.target.files[0];
 		File.open(file, onFileOpen);
