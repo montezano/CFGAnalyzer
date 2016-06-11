@@ -109,8 +109,7 @@ window.FiniteAutomaton = function() {
 		}
 		alphabet.sort();
 		return alphabet;
-	}
-
+	};
 
 	// Returns the minimized form of this automaton.
 	this.minimize = function() {

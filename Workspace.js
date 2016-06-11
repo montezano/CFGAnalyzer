@@ -56,7 +56,8 @@ window.Workspace = function() {
 
 			var row;
 			var transitions = automaton.transitions;
-			for (var state in transitions) {
+			for (var i = 0; i < automaton.stateList.length; i++) {
+				var state = automaton.stateList[i];
 				row = node("tr");
 				cell = node("td");
 				var printableState = state;
@@ -68,10 +69,11 @@ window.Workspace = function() {
 				}
 				cell.innerHTML = printableState;
 				row.appendChild(cell);
-				for (var i = 0; i < alphabet.length; i++) {
+				for (var j = 0; j < alphabet.length; j++) {
 					var content = NO_TRANSITION;
-					if (transitions[state].hasOwnProperty(alphabet[i])) {
-						content = transitions[state][alphabet[i]];
+					if (transitions.hasOwnProperty(state)
+						&& transitions[state].hasOwnProperty(alphabet[j])) {
+						content = transitions[state][alphabet[j]];
 					}
 					cell = node("td");
 					cell.innerHTML = content;

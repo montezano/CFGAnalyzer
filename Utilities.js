@@ -14,6 +14,9 @@ window.Utilities = {
 	VISIT_RIGHT: RIGHT,
 	VISIT_NEXT: NEXT,
 
+	// The standard error message.
+	INVALID_REGEX: "Error: Invalid regular expression",
+
 	/* Structure:
 	 * "operator": [number of operands,
 	 *				priority,
@@ -31,9 +34,6 @@ window.Utilities = {
 	// A list containing only the operator symbols (filled below)
 	operators: null,
 
-	// The standard error message.
-	INVALID_REGEX: "Error: Invalid regular expression",
-
 	// Returns the number of operands of an operator.
 	numOperands: function(operator) {
 		return Utilities.operatorInfo[operator][0];
@@ -42,6 +42,16 @@ window.Utilities = {
 	// Returns the priority of an operator.
 	priority: function(operator) {
 		return Utilities.operatorInfo[operator][1];
+	},
+
+	// Generates a name for the (n+1)-th state of an automaton.
+	generateStateName: function(n) {
+		var name = String.fromCharCode(65 + (n % 26));
+		var numApostrophes = Math.floor(n / 26);
+		for (var i = 0; i < numApostrophes; i++) {
+			name += "'";
+		}
+		return name;
 	},
 
 	// Removes all duplicated elements of a numeric array.

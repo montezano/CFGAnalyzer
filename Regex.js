@@ -182,7 +182,7 @@ window.Regex = function(str) {
 			}
 		}
 
-		var stateName = "q" + dfa.stateList.length;
+		var stateName = Utilities.generateStateName(dfa.stateList.length);
 		dfa.addState(stateName);
 
 		// console.log("=====================");
