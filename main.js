@@ -3,7 +3,7 @@
 
 var $ = Utilities.$;
 
-var workspace = new Workspace();
+window.workspace = new Workspace();
 var onFileOpen = function(content) {
 	workspace = Workspace.load(content);
 };

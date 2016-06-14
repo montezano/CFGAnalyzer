@@ -228,6 +228,7 @@ window.Regex = function(str) {
 
 		for (var stateName in stateCompositions) {
 			if (!stateCompositions.hasOwnProperty(stateName)) continue;
+			console.log(stateName + ": " + stateCompositions[stateName].join(","));
 			var target = stateCompositions[stateName].target;
 			for (var targetName in stateCompositions) {
 				if (!stateCompositions.hasOwnProperty(targetName)) continue;

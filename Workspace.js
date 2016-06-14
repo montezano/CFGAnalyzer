@@ -13,7 +13,11 @@ var container = function() {
 
 var node = function(tag) {
 	return document.createElement(tag);
-}
+};
+
+var genAutomatonID = function(id) {
+	return "aut" + id;
+};
 
 window.Workspace = function() {
 	var self = this;
@@ -29,10 +33,13 @@ window.Workspace = function() {
 	}
 
 	// Produces an HTML version of an automaton.
-	function printableAutomaton(regex, automaton) {
+	function printableAutomaton(obj) {
+		var regex = obj.regex;
+		var automaton = obj.automaton;
 		if (automaton instanceof FiniteAutomaton) {
 			var table = node("table");
 			table.classList.add("automaton");
+			table.id = genAutomatonID(obj.id);
 
 			var alphabet = automaton.getAlphabet();
 			var header = node("tr");
@@ -108,9 +115,9 @@ window.Workspace = function() {
 			return;
 		}
 
-		var automatonNode = $("#aut" + obj.id);
+		var automatonNode = $("#" + genAutomatonID(obj.id));
 		if (!automatonNode && obj.visible) {
-			container().appendChild(printableAutomaton(obj.regex, obj.automaton));
+			container().appendChild(printableAutomaton(obj));
 		} else if (automatonNode && !obj.visible) {
 			automatonNode.parentElement.removeChild(automatonNode);
 		}
