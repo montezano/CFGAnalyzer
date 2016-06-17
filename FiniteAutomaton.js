@@ -31,6 +31,44 @@ window.FiniteAutomaton = function() {
 		}
 	};
 
+	// Removes a state of this automaton, also removing all transitions
+	// involving it.
+	this.removeState = function(state) {
+		console.log("[REMOVE] " + state);
+		if (self.stateList.includes(state)) {
+			for (var source in self.transitions) {
+				if (!self.transitions.hasOwnProperty(source)) continue;
+				if (source == state) {
+					delete self.transitions[source];
+					continue;
+				}
+				for (var input in self.transitions[source]) {
+					if (!self.transitions[source].hasOwnProperty(input)) continue;
+					var target = self.transitions[source][input][0];
+					if (target == state) {
+						delete self.transitions[source][input];
+					}
+				}
+				if (Object.keys(self.transitions[source]).length == 0) {
+					delete self.transitions[source];
+				}
+			}
+
+			self.stateList.splice(self.stateList.indexOf(state), 1);
+			if (self.acceptingStates.includes(state)) {
+				self.acceptingStates.splice(self.acceptingStates.indexOf(state), 1);
+			}
+
+			if (self.initialState == state) {
+				self.initialState = null;
+			}
+
+			if (self.currentState == state) {
+				self.currentState = null;
+			}
+		}
+	}
+
 	// Adds a new accepting state to this automaton.
 	this.acceptState = function(state) {
 		if (self.stateList.includes(state)) {
@@ -111,9 +149,58 @@ window.FiniteAutomaton = function() {
 		return alphabet;
 	};
 
+	// Returns a copy of this automaton.
+	this.copy = function() {
+		var result = new FiniteAutomaton();
+		for (var i = 0; i < self.stateList.length; i++) {
+			result.addState(self.stateList[i]);
+		}
+
+		for (var state in self.transitions) {
+			if (!self.transitions.hasOwnProperty(state)) continue;
+			var t = self.transitions[state];
+			for (var input in t) {
+				if (!t[input]) continue;
+				for (var i = 0; i < t[input].length; i++) {
+					result.addTransition(state, input, t[input][i]);
+				}
+			}
+		}
+
+		for (var i = 0; i < self.acceptingStates.length; i++) {
+			result.acceptState(self.acceptingStates[i]);
+		}
+		result.initialState = self.initialState;
+		result.currentState = self.currentState;
+		return result;
+	};
+
+	// Removes all inacessible states of this automaton.
+	this.removeInaccessibleStates = function() {
+		var accessibleStates = [self.initialState];
+		for (var i = 0; i < accessibleStates.length; i++) {
+			var state = accessibleStates[i];
+			for (var input in self.transitions[state]) {
+				if (self.transitions[state].hasOwnProperty(input)) {
+					var target = self.transitions[state][input][0];
+					if (!accessibleStates.includes(target)) {
+						accessibleStates.push(target);
+					}
+				}
+			}
+		}
+
+		for (var i = 0; i < self.stateList.length; i++) {
+			if (!accessibleStates.includes(self.stateList[i])) {
+				self.removeState(self.stateList[i]);
+			}
+		}
+	};
+
 	// Returns the minimized form of this automaton.
 	this.minimize = function() {
-		var result = new FiniteAutomaton();
+		var result = self.copy();
+		result.removeUselessStates();
 		// TODO
 		return result;
 	};
@@ -161,8 +248,8 @@ window.FiniteAutomaton = function() {
 
 	// Checks if this automaton doesn't accept any expression.
 	this.isEmpty = function() {
-		// TODO
-		return false;
+		var minimized = self.minimize();
+		return (minimized.acceptingStates.length == 0);
 	};
 
 	// Checks if this automaton's regular language contains another

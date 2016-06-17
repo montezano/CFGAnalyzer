@@ -25,7 +25,7 @@ var normalizeTestCases = {
 };
 
 /* Structure:
- * [regex, expectedRoot, inOrderLeaves, inOrderTerminalThreadingLinks]
+ * [expression, expectedRoot, inOrderLeaves, inOrderTerminalThreadingLinks]
  */
 var deSimoneTreeTestCases = [
 	["(0|10*10*1)+", "+", [0,1,0,1,0,1], ["|",".","*",".","*","+"]],
@@ -36,6 +36,27 @@ var deSimoneTreeTestCases = [
 	["ab", ".", ["a","b"], [".",null]]
 ];
 
+/* Structure:
+ * [expression, input, shouldAccept]
+ */
+var automatonTestCases = [
+	["ab*c", "ac", true],
+	["ab*c", "abbbbbbbbc", true],
+	["ab*c", "abbbb", false],
+	["ab*c", "bbbc", false],
+	["ab*c", "", false],
+	["0(0|1)*0|1(0|1)*1", "01010101", false],
+	["0(0|1)*0|1(0|1)*1", "01010100", true],
+	["0(0|1)*0|1(0|1)*1", "111001000", false],
+	["0(0|1)*0|1(0|1)*1", "111001001", true],
+	["(0|1(01*0)*1)+", "", false],
+	["(0|1(01*0)*1)+", "000", true],
+	["(0|1(01*0)*1)+", "101111001101011", true],
+	["a*", "", true],
+	["a*", "a", true],
+	["a*", "aaaaaa", true]
+];
+
 function printTest(testName, expected, actual) {
 	var output = testName + ": ";
 	if (expected == actual) {
@@ -43,6 +64,12 @@ function printTest(testName, expected, actual) {
 	} else {
 		output += "NOT OK (expected \"" + expected + "\", got \"" + actual + "\")";
 	}
+	console.log(output);
+}
+
+function printSimpleTest(testName, passed) {
+	var output = testName + ": ";
+	output += passed ? "OK" : "NOT OK";
 	console.log(output);
 }
 
@@ -64,14 +91,32 @@ window.Test = {
 	},
 	testDeSimoneTree: function() {
 		var testCases = deSimoneTreeTestCases;
-		var instance;
 		for (var i = 0; i < testCases.length; i++) {
 			var test = testCases[i];
-			instance = new Regex(test[0]);
+			var regex = new Regex(test[0]);
+			var instance = regex.toDeSimoneTree();
 
 			var ok = (instance.root().data == test[1]);
 			var leaves = instance.getLeafNodes();
-			// TODO			
+			for (var j = 0; j < leaves.length; j++) {
+				ok = ok && (leaves[j].data == test[2][j]);
+				if (leaves[j].threadingLink) {
+					ok = ok && (leaves[j].threadingLink.data == test[3][j]);
+				} else {
+					ok = ok && !test[3][j];
+				}
+			}
+			printSimpleTest(test[0], ok);
+		}
+	},
+	testAutomaton: function() {
+		var testCases = automatonTestCases;
+		for (var i = 0; i < testCases.length; i++) {
+			var test = testCases[i];
+			var regex = new Regex(test[0]);
+			var instance = regex.toFiniteAutomaton();
+			instance.read(test[1]);
+			printTest(test[0], test[2], instance.accepts());
 		}
 	},
 	exec: function() {
