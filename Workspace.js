@@ -94,16 +94,27 @@ window.Workspace = function() {
 		return null;
 	}
 
+	this.error = function(message) {
+		alert(message);
+	};
+
 	// Adds a new regex to this workspace.
 	this.addRegex = function(regex) {
 		var instance = new Regex(regex);
 		if (!instance.isValid()) {
 			self.error(ERROR_INVALID_REGEX);
-			return;
+			return false;
 		}
-		var obj = buildExprObject(instance);
+		var obj;
+		try {
+			obj = buildExprObject(instance);
+		} catch (e) {
+			alert("[BUG] isValid() returned true for: " + regex);
+			return false;
+		}
 		self.expressionList.push(obj);
 		self.update(obj);
+		return true;
 	};
 
 	// Updates the view.

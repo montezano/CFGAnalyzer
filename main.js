@@ -24,9 +24,9 @@ addEventListener("load", function() {
 
 	$("#regex").addEventListener("keyup", function(ev) {
 		if (ev.keyCode == 13) {
-			var value = this.value;
-			this.value = "";
-			workspace.addRegex(value);
+			if (workspace.addRegex(this.value)) {
+				this.value = "";
+			}
 		}
 	});
 });

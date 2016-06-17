@@ -47,6 +47,7 @@ window.Node = function() {
 		}
 	}
 
+	// Adds a subtree to this tree.
 	function pushSubtree(tree) {
 		// console.log("Pushing subtree...");
 		if (self.data === null) {
@@ -77,6 +78,7 @@ window.Node = function() {
 		}
 	}
 
+	// Adds a terminal symbol to this tree.
 	function pushTerminal(char) {
 		// console.log("Terminal: " + char);
 		if (self.data === null) {
@@ -100,6 +102,7 @@ window.Node = function() {
 		self.right.push(char);
 	}
 
+	// Adds an operator to this tree.
 	function pushOperator(char) {
 		// console.log("Operator: " + char);
 		if (self.data === null) {
@@ -141,7 +144,7 @@ window.Node = function() {
 		console.log("Error: invalid regex");
 	}
 
-	// Pushes a new symbol to the tree.
+	// Pushes a new symbol/subtree to this tree.
 	this.push = function(char) {
 		// console.log("Pushing " + char);
 		if (char instanceof Node) {
@@ -218,6 +221,7 @@ window.Node = function() {
 		}
 	};
 
+	// Returns a node of this tree with a given index.
 	this.searchByIndex = function(index) {
 		index *= 1;
 		if (isNaN(index)) return null;
@@ -239,6 +243,28 @@ window.Node = function() {
 			node = node.parent;
 		}
 		return node;
+	};
+
+	// Returns a list containing the leaf nodes of this tree.
+	this.getLeafNodes = function() {
+		var leafContainer = [];
+		self.fillLeafList(leafContainer);
+		return leafContainer;
+	};
+
+	// Fills a list with the leaf nodes of this tree.
+	this.fillLeafList = function(leafContainer) {
+		if (!self.left && !self.right) {
+			leafContainer.push(self);
+		}
+
+		if (self.left) {
+			self.left.fillLeafList(leafContainer);
+		}
+
+		if (self.right) {
+			self.right.fillLeafList(leafContainer);
+		}		
 	};
 
 	this.debug = function() {

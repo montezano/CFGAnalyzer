@@ -12,6 +12,14 @@ window.Regex = function(str) {
 	this.string = str;
 
 	// Checks if this regex is valid.
+	/*
+	 * TODO:
+	 * - recusar expressão vazia
+	 * - recusar coisas tipo a(
+	 * - recusar coisas tipo a) (o programa não adiciona mas isValid() retorna true)
+	 * - ignorar espaços
+	 * - colocar condições de falha pro |
+	 */
 	this.isValid = function() {
 		var modifier = ["?", "*", "+"];
 		var lastIsModifier = false;
@@ -35,7 +43,7 @@ window.Regex = function(str) {
 	}
 
 	// Adds concatenation wherever it's implicit. Returns the new regex.
-	function normalize() {
+	this.normalize = function() {
 		if (!self.isValid()) {
 			throw Utilities.INVALID_REGEX;
 		}
@@ -54,11 +62,11 @@ window.Regex = function(str) {
 			}
 		}
 		return normalizedStr;
-	}
+	};
 
 	// Returns a tree representing the De Simone form of this regex.
-	function toDeSimoneTree() {
-		var regex = normalize();
+	this.toDeSimoneTree = function() {
+		var regex = self.normalize();
 		var treeList = [new Node()];
 		for (var i = 0; i < regex.length; i++) {
 			if (regex[i] == '(') {
@@ -221,7 +229,7 @@ window.Regex = function(str) {
 
 	// Returns a finite automaton representing this regex.
 	this.toFiniteAutomaton = function() {
-		var tree = toDeSimoneTree();
+		var tree = self.toDeSimoneTree();
 		var dfa = new FiniteAutomaton();
 		var stateCompositions = {};
 		produceStates(tree, dfa, stateCompositions);
