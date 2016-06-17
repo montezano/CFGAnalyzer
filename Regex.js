@@ -8,38 +8,57 @@ window.Regex = function(str) {
 	var self = this;
 	var UP = -1;
 	var DOWN = 1;
-	str = str.toString();
+	str = str.toString().replace(/ /g, '');;
 	this.string = str;
 
-	// Checks if this regex is valid.
-	/*
-	 * TODO:
-	 * - recusar expressão vazia
-	 * - recusar coisas tipo a(
-	 * - recusar coisas tipo a) (o programa não adiciona mas isValid() retorna true)
-	 * - ignorar espaços
-	 * - colocar condições de falha pro |
-	 */
 	this.isValid = function() {
+		if (str.length == 0) return false;
 		var modifier = ["?", "*", "+"];
 		var lastIsModifier = false;
+		var requireTerminal = false;
+		var parCount = 0;
+
+		if (str[0] == '|') return false;
+
 		for (var i = 0; i < str.length; i++) {
 			var currIsModifier = modifier.includes(str[i]);
+
+			if (str[i] == '|' || str[i] == '.') {
+				if (requireTerminal) return false;
+				requireTerminal = true;
+			} else if (Utilities.alphabet.includes(str[i])) {
+				requireTerminal = false;
+			}
+
+			if (str[i] == '(') {
+				parCount++;
+				if (str[i+1] == '|') return false;
+			} else if (str[i] == ')') {
+				parCount--;
+				if (requireTerminal) return false;
+			}
+
+			if (parCount < 0) return false;
+
 			if ((str[i-1] == "." || str[i-1] == "(") &&
 				(str[i] == ")" || currIsModifier)) {
 				return false;
 			}
+
 			if ((str[i-1] == "(" || lastIsModifier) && currIsModifier) {
 				return false;
 			}
+
 			if (!Utilities.operators.includes(str[i]) &&
 			 	!["(", ")"].includes(str[i]) &&
 				!Utilities.alphabet.includes(str[i])) {
 				return false;
 			}
+
 			lastIsModifier = currIsModifier;
 		}
-		return true;
+		if (parCount != 0 || requireTerminal) return false
+		else return true;
 	}
 
 	// Adds concatenation wherever it's implicit. Returns the new regex.
