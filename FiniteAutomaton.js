@@ -175,9 +175,35 @@ window.FiniteAutomaton = function() {
 		return result;
 	};
 
-	// Removes all inacessible states of this automaton.
-	this.removeInaccessibleStates = function() {
-		var accessibleStates = [self.initialState];
+	// Removes all dead states of this automaton.
+	this.removeDeadStates = function() {
+		var i = 0;
+		while (i < self.stateList.length) {
+			var state = self.stateList[i];
+			var accessibleStates = self.getAccessibleStates(state);
+			var dead = true;
+			for (var j = 0; j < accessibleStates.length; j++) {
+				if (self.acceptingStates.includes(accessibleStates[j])) {
+					dead = false;
+					break;
+				}
+			}
+			if (dead) {
+				self.removeState(state);
+			} else {
+				i++;
+			}
+		}
+	};
+
+	// Returns a list containing all accessible states of this automaton
+	// starting in an optionally given state. If no state is provided,
+	// the initial state is used.
+	this.getAccessibleStates = function(startingState) {
+		if (startingState == null) {
+			startingState = self.initialState;
+		}
+		var accessibleStates = [startingState];
 		for (var i = 0; i < accessibleStates.length; i++) {
 			var state = accessibleStates[i];
 			for (var input in self.transitions[state]) {
@@ -189,19 +215,34 @@ window.FiniteAutomaton = function() {
 				}
 			}
 		}
+		return accessibleStates;
+	};
 
-		for (var i = 0; i < self.stateList.length; i++) {
-			if (!accessibleStates.includes(self.stateList[i])) {
-				self.removeState(self.stateList[i]);
+	// Removes all inacessible states of this automaton.
+	this.removeInaccessibleStates = function() {
+		var accessibleStates = self.getAccessibleStates();
+		var i = 0;
+		while (i < self.stateList.length) {
+			var state = self.stateList[i];
+			if (!accessibleStates.includes(state)) {
+				self.removeState(state);
+			} else {
+				i++;
 			}
 		}
+	};
+
+	// Removes all useless states of this automaton.
+	this.removeUselessStates = function() {
+		self.removeDeadStates();
+		self.removeInaccessibleStates();
 	};
 
 	// Returns the minimized form of this automaton.
 	this.minimize = function() {
 		var result = self.copy();
 		result.removeUselessStates();
-		// TODO
+		result.materializeErrorState();
 		return result;
 	};
 
