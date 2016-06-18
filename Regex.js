@@ -57,8 +57,7 @@ window.Regex = function(str) {
 
 			lastIsModifier = currIsModifier;
 		}
-		if (parCount != 0 || requireTerminal) return false
-		else return true;
+		return (parCount == 0 && !requireTerminal);
 	}
 
 	// Adds concatenation wherever it's implicit. Returns the new regex.

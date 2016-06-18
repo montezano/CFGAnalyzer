@@ -67,7 +67,21 @@ window.FiniteAutomaton = function() {
 				self.currentState = null;
 			}
 		}
-	}
+	};
+
+	// Makes all transitions that lead to a state go to another state
+	this.replaceState = function(oldState, newState) {
+		for (var source in self.transitions) {
+			if (!self.transitions.hasOwnProperty(source)) continue;
+			for (var input in self.transitions[source]) {
+				if (!self.transitions[source].hasOwnProperty(input)) continue;
+				var target = self.transitions[source][input][0];
+				if (target == oldState) {
+					self.transitions[source][input][0] = newState;
+				}
+			}
+		}
+	};
 
 	// Adds a new accepting state to this automaton.
 	this.acceptState = function(state) {
@@ -147,6 +161,17 @@ window.FiniteAutomaton = function() {
 		}
 		alphabet.sort();
 		return alphabet;
+	};
+
+	// Returns a list containing all the non-final states of this automaton.
+	this.getRejectingStates = function() {
+		var rejectingStates = [];
+		for (var i = 0; i < self.stateList.length; i++) {
+			if (!self.acceptingStates.includes(self.stateList[i])) {
+				rejectingStates.push(self.stateList[i]);
+			}
+		}
+		return rejectingStates;
 	};
 
 	// Returns a copy of this automaton.
@@ -238,11 +263,74 @@ window.FiniteAutomaton = function() {
 		self.removeInaccessibleStates();
 	};
 
+	// Returns the subset of states of this automaton which has a transition
+	// on a given input leading to a state in a given set.
+	this.stateFilter = function(input, set) {
+		var result = [];
+		for (var i = 0; i < self.stateList.length; i++) {
+			var state = self.stateList[i];
+			if (self.transitions.hasOwnProperty(state)
+				&& self.transitions[state].hasOwnProperty(input)
+				&& set.includes(self.transitions[state][input][0])) {
+				result.push(state);
+			}
+		}
+		return result;
+	};
+
+	// Removes all equivalent states of this automaton using Hopcroft's algorithm.
+	this.removeEquivalentStates = function() {
+		var alphabet = self.getAlphabet();
+		var partitions = [self.acceptingStates, self.getRejectingStates()];
+		// TODO: find a good name for this variable
+		var w = [self.acceptingStates];
+		while (w.length > 0) {
+			var set = w.pop();
+			for (var i = 0; i < alphabet.length; i++) {
+				var c = alphabet[i];
+				var predecessors = self.stateFilter(c, set);
+				var j = 0;
+				while (j < partitions.length) {
+					var partition = partitions[j];
+					var intersection = Utilities.intersection(partition, predecessors);
+					var difference = Utilities.subtract(partition, predecessors);
+					if (intersection.length > 0 && difference.length > 0) {
+						partitions.splice(j, 1);
+						partitions.push(intersection);
+						partitions.push(difference);
+						var index = Utilities.indexOf(w, partition);
+						if (index >= 0) {
+							w.splice(index, 1);
+							w.push(intersection);
+							w.push(difference);
+						} else {
+							if (intersection.length <= difference.length) {
+								w.push(intersection);
+							} else {
+								w.push(difference);
+							}
+						}
+					} else {
+						j++;
+					}
+				}
+			}
+		}
+
+		for (var i = 0; i < partitions.length; i++) {
+			while (partitions[i].length > 1) {
+				var state = partitions[i].pop();
+				self.replaceState(state, partitions[i][0]);
+				self.removeState(state);
+			}
+		}
+	};
+
 	// Returns the minimized form of this automaton.
 	this.minimize = function() {
 		var result = self.copy();
 		result.removeUselessStates();
-		result.materializeErrorState();
+		result.removeEquivalentStates();
 		return result;
 	};
 

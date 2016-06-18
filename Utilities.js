@@ -75,6 +75,51 @@ window.Utilities = {
 		return true;
 	},
 
+	// Returns the intersection of two arrays.
+	intersection: function(arr1, arr2) {
+		var result = [];
+		for (var i = 0; i < arr1.length; i++) {
+			if (arr2.includes(arr1[i])) {
+				result.push(arr1[i]);
+			}
+		}
+		return result;
+	},
+
+	// Returns the difference arr1 - arr2
+	subtract: function(arr1, arr2) {
+		var result = [];
+		for (var i = 0; i < arr1.length; i++) {
+			if (!arr2.includes(arr1[i])) {
+				result.push(arr1[i]);
+			}
+		}
+		return result;
+	},
+
+	// Returns the position of the container where element is;
+	// Returns -1 if not found. Also works if element is an array.
+	indexOf: function(container, element) {
+		if (!(element instanceof Array)) {
+			return container.indexOf(element);
+		}
+		for (var i = 0; i < container.length; i++) {
+			if (container[i] instanceof Array && container[i].length == element.length) {
+				var equal = true;
+				for (var j = 0; j < container[i].length; j++) {
+					if (container[i][j] != element[j]) {
+						equal = false;
+						break;
+					}
+				}
+				if (equal) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	},
+
 	// Retrieves one or more nodes of the DOM according to a CSS selector.
 	$: function(selector) {
 		if (selector[0] == '#') {
