@@ -34,6 +34,12 @@ addEventListener("load", function() {
 			}
 		}
 	});
+
+	$("#add_btn").addEventListener("click", function() {
+		if (workspace.addRegex($("#regex").value)) {
+			$("#regex").value = "";
+		}
+	});
 });
 
 })();

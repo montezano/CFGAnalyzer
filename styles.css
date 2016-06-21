@@ -13,9 +13,36 @@ body {
 	height: 100%;
 }
 
-#sidebar, #main {
+#sidebar {
 	display: table-cell;
 	padding: 5px;
+	width: 250px;
+	max-width: 250px;
+	min-width: 250px;
+}
+
+#main {
+	display: table-cell;
+	width: 100%;
+}
+
+#regex_add {
+	width: inherit;
+	margin-bottom: 5px;
+}
+
+#add_btn {
+	float: right;
+}
+
+.input-wrapper {
+	overflow: hidden;
+	padding-right: .5em;
+}
+
+#regex {
+	width: 100%;
+	padding-left: 2px;
 }
 
 #sidebar {
