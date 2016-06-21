@@ -352,24 +352,27 @@ window.FiniteAutomaton = function() {
 
 	// Returns a new automaton whose recognized language is the union
 	// between this and another automaton's languages.
-	this.union = function(other) {
+	// TODO: this can probably be removed since the intersection algorithm
+	// no longer uses it.
+	/*this.union = function(other) {
 		if (other instanceof FiniteAutomaton) {
 			var result = new FiniteAutomaton();
 			// TODO
 			return result;
 		}
 		return self;
-	};
+	};*/
 
 	// Returns a new automaton whose recognized language is the intersection
 	// between this and another automaton's languages.
-	// Uses the property M1 intersec M2 = not(not(M1) union not(M2))
+	// Uses the product construction to obtain the intersection
+	// http://cs.stackexchange.com/questions/6893/is-this-intersection-of-dfas-correct
+	// TODO: remove the link above when the implementation is complete.
 	this.intersection = function(other) {
 		var result = new FiniteAutomaton();
 		if (other instanceof FiniteAutomaton) {
-			var c1 = self.complement();
-			var c2 = other.complement();
-			return c1.union(c2).complement();
+			// result.stateList = Utilities.cartesianProduct(self.stateList, other.stateList);
+			// TODO
 		}
 		return result;
 	};

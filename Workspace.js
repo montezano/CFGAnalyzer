@@ -3,9 +3,11 @@
 
 var ERROR_INVALID_REGEX = "Invalid regular expression";
 var ERROR_INVALID_OPERATION = "Invalid operation";
+var ERROR_ALREADY_MINIMIZED = "The selected expression is already minimized";
 var NO_TRANSITION = "-";
 var INITIAL_STATE = "->";
 var ACCEPTING_STATE = "*";
+var MINIMIZED_PREFIX = "[MIN]";
 
 var $ = Utilities.$;
 var container = function() {
@@ -174,10 +176,17 @@ window.Workspace = function() {
 			var expressions = getCheckedExpressions();
 			if (expressions.length != 1) {
 				self.error(ERROR_INVALID_OPERATION);
+				return;
 			}
+			
 			var expr = expressions[0];
+			if (expr.regex.string.startsWith(MINIMIZED_PREFIX)) {
+				self.error(ERROR_ALREADY_MINIMIZED);
+				return;
+			}
+
 			var clone = buildExprObject(expr.regex);
-			clone.regex.string = "[MIN] " + clone.regex.string;
+			clone.regex.string = MINIMIZED_PREFIX + " " + clone.regex.string;
 			clone.automaton = clone.automaton.minimize();
 			addObject(clone);
 		});
@@ -186,6 +195,7 @@ window.Workspace = function() {
 			var expressions = getCheckedExpressions();
 			if (expressions.length != 2) {
 				self.error(ERROR_INVALID_OPERATION);
+				return;
 			}
 			console.log(expressions);
 			window.a1 = expressions[0].automaton;
@@ -197,6 +207,7 @@ window.Workspace = function() {
 			var expressions = getCheckedExpressions();
 			if (expressions.length != 2) {
 				self.error(ERROR_INVALID_OPERATION);
+				return;
 			}
 			console.log(expressions);
 			window.a1 = expressions[0].automaton;
