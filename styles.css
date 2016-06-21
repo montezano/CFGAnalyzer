@@ -28,6 +28,18 @@ body {
 	text-align: center;
 }
 
+#regex_list {
+	width: 100%;
+}
+
+#regex_list td:last-child, #button_bar {
+	text-align: center;
+}
+
+#button_bar input[type='button'] {
+	margin: 3 auto 0 auto;
+}
+
 .automaton {
 	display: inline-table;
 	margin-right: 20px;

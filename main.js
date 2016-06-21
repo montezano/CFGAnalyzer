@@ -9,6 +9,11 @@ var onFileOpen = function(content) {
 };
 
 addEventListener("load", function() {
+	workspace.initEvents();
+	// workspace.addRegex("a(cd)*|b(cd)*");
+	// workspace.addRegex("(a|b)(cd)*");
+	//workspace.addRegex("aaababbcaabcbacbabcbabcaaababbcaabcbacbabcbabc");
+
 	$("#file_selector").addEventListener("change", function(ev) {
 		var file = ev.target.files[0];
 		File.open(file, onFileOpen);

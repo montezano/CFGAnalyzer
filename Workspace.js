@@ -2,6 +2,7 @@
 "use strict";
 
 var ERROR_INVALID_REGEX = "Invalid regular expression";
+var ERROR_INVALID_OPERATION = "Invalid operation";
 var NO_TRANSITION = "-";
 var INITIAL_STATE = "->";
 var ACCEPTING_STATE = "*";
@@ -11,12 +12,36 @@ var container = function() {
 	return $("#main");
 };
 
+var buttonBar = function() {
+	return $("#button_bar");
+};
+
+var regexList = function() {
+	return $("#regex_list");
+};
+
+var minimizeButton = function() {
+	return $("#minimize_btn");
+};
+
+var intersectionButton = function() {
+	return $("#intersect_btn");
+};
+
+var equivalenceButton = function() {
+	return $("#equivalence_btn");
+};
+
 var node = function(tag) {
 	return document.createElement(tag);
 };
 
 var genAutomatonID = function(id) {
 	return "aut" + id;
+};
+
+var genRegexID = function(id) {
+	return "regex" + id;
 };
 
 window.Workspace = function() {
@@ -94,6 +119,93 @@ window.Workspace = function() {
 		return null;
 	}
 
+	// Returns a list containing all checked expressions.
+	function getCheckedExpressions() {
+		var checkboxes = regexList().querySelectorAll("input[type='checkbox']");
+		var expressions = [];
+		for (var i = 0; i < checkboxes.length; i++) {
+			if (checkboxes[i].checked) {
+				var id = checkboxes[i].parentElement.parentElement.id;
+				id = id.replace("regex", "");
+				expressions.push(self.expressionList[id]);
+			}
+		}
+		return expressions;
+	}
+
+	// shows/hides the intersection button when appropriate
+	function updateUI() {
+		var checked = getCheckedExpressions();
+		var numChecked = checked.length;
+		minimizeButton().style.display = (numChecked == 1) ? "block" : "none";
+		intersectionButton().style.display = (numChecked == 2) ? "block" : "none";
+		equivalenceButton().style.display = (numChecked == 2) ? "block" : "none";
+	}
+
+	// Returns a list item containing a given expression.
+	function regexListItem(obj) {
+		var row = node("tr");
+		row.id = genRegexID(obj.id);
+
+		var regexCell = node("td");
+		regexCell.innerHTML = obj.regex.string;
+		row.appendChild(regexCell);
+
+		var checkboxCell = node("td");
+		var checkbox = node("input");
+		checkbox.type = "checkbox";
+		checkbox.addEventListener("change", updateUI);
+
+		checkboxCell.appendChild(checkbox);
+		row.appendChild(checkboxCell);
+		return row;
+	}
+
+	// Adds an already-constructed object to this workspace.
+	function addObject(obj) {
+		self.expressionList.push(obj);
+		self.update(obj);
+	}
+
+	// Initializes event handlers
+	this.initEvents = function() {
+		updateUI();
+		minimizeButton().addEventListener("click", function() {
+			var expressions = getCheckedExpressions();
+			if (expressions.length != 1) {
+				self.error(ERROR_INVALID_OPERATION);
+			}
+			var expr = expressions[0];
+			var clone = buildExprObject(expr.regex);
+			clone.regex.string = "[MIN] " + clone.regex.string;
+			clone.automaton = clone.automaton.minimize();
+			addObject(clone);
+		});
+
+		intersectionButton().addEventListener("click", function() {
+			var expressions = getCheckedExpressions();
+			if (expressions.length != 2) {
+				self.error(ERROR_INVALID_OPERATION);
+			}
+			console.log(expressions);
+			window.a1 = expressions[0].automaton;
+			window.a2 = expressions[1].automaton;
+			alert("Not yet implemented.");
+		});
+
+		equivalenceButton().addEventListener("click", function() {
+			var expressions = getCheckedExpressions();
+			if (expressions.length != 2) {
+				self.error(ERROR_INVALID_OPERATION);
+			}
+			console.log(expressions);
+			window.a1 = expressions[0].automaton;
+			window.a2 = expressions[1].automaton;
+			alert("Not yet implemented.");
+		});
+	};
+
+	// Shows an error to the user.
 	this.error = function(message) {
 		alert(message);
 	};
@@ -112,8 +224,7 @@ window.Workspace = function() {
 			alert("[BUG] isValid() returned true for: " + regex);
 			return false;
 		}
-		self.expressionList.push(obj);
-		self.update(obj);
+		addObject(obj);
 		return true;
 	};
 
@@ -132,7 +243,11 @@ window.Workspace = function() {
 		} else if (automatonNode && !obj.visible) {
 			automatonNode.parentElement.removeChild(automatonNode);
 		}
-		// container().innerHTML += obj.regex.string + "<br>";
+
+		var regexNode = $("#" + genRegexID(obj.id));
+		if (!regexNode) {
+			regexList().appendChild(regexListItem(obj));
+		}
 	};
 
 	// Returns a string representation of this workspace, which can be

@@ -34,7 +34,6 @@ window.FiniteAutomaton = function() {
 	// Removes a state of this automaton, also removing all transitions
 	// involving it.
 	this.removeState = function(state) {
-		console.log("[REMOVE] " + state);
 		if (self.stateList.includes(state)) {
 			for (var source in self.transitions) {
 				if (!self.transitions.hasOwnProperty(source)) continue;
