@@ -8,7 +8,7 @@ window.Regex = function(str) {
 	var self = this;
 	var UP = -1;
 	var DOWN = 1;
-	str = str.toString().replace(/ /g, '');;
+	str = str.toString().replace(/ /g, '');
 	this.string = str;
 
 	this.isValid = function() {
