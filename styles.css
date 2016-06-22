@@ -60,6 +60,7 @@ body {
 }
 
 #regex_list {
+	white-space: pre;
 	width: 100%;
 }
 

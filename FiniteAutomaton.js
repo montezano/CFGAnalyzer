@@ -1,6 +1,8 @@
 (function(){
 "use strict";
 
+var ERROR_STATE = "__error_state__";
+
 window.FiniteAutomaton = function() {
 	var self = this;
 	this.stateList = [];
@@ -34,6 +36,7 @@ window.FiniteAutomaton = function() {
 	// Removes a state of this automaton, also removing all transitions
 	// involving it.
 	this.removeState = function(state) {
+		// console.log("[REMOVE] " + state);
 		if (self.stateList.includes(state)) {
 			for (var source in self.transitions) {
 				if (!self.transitions.hasOwnProperty(source)) continue;
@@ -103,6 +106,36 @@ window.FiniteAutomaton = function() {
 			if (!self.transitions[currState][input].includes(targetState)) {
 				self.transitions[currState][input].push(targetState);
 			}
+		}
+	};
+
+	// Resets all this automaton's state names according to the
+	// naming convention (uses Utilities::generateStateName)
+	// Note that this might fail if there's a state already following
+	// the usual naming conventions, as it is designed and optimized to work
+	// specifically with the intersection method, in which that never occurs.
+	this.renameStates = function() {
+		var mapping = {};
+		for (var i = 0; i < self.stateList.length; i++) {
+			var state = self.stateList[i];
+			var newName = Utilities.generateStateName(i);
+			self.replaceState(state, newName);
+			self.transitions[newName] = self.transitions[state];
+			delete self.transitions[state];
+			self.stateList[i] = newName;
+			mapping[state] = newName;
+		}
+
+		for (var i = 0; i < self.acceptingStates.length; i++) {
+			self.acceptingStates[i] = mapping[self.acceptingStates[i]];
+		}
+
+		if (self.initialState) {
+			self.initialState = mapping[self.initialState];
+		}
+
+		if (self.currentState) {
+			self.currentState = mapping[self.currentState];
 		}
 	};
 
@@ -277,8 +310,29 @@ window.FiniteAutomaton = function() {
 		return result;
 	};
 
+	// Replaces all undefined transitions by transitions to the error state.
+	this.materializeErrorState = function() {
+		var alphabet = self.getAlphabet();
+		var transitions = self.transitions;
+		var materialized = false;
+		for (var i = 0; i < self.stateList.length; i++) {
+			var state = self.stateList[i];
+			for (var j = 0; j < alphabet.length; j++) {
+				if (!transitions.hasOwnProperty(state)
+					|| !transitions[state].hasOwnProperty(alphabet[j])) {
+					if (!materialized) {
+						self.addState(ERROR_STATE);
+						materialized = true;
+					}
+					self.addTransition(state, alphabet[j], ERROR_STATE);
+				}
+			}
+		}
+	};
+
 	// Removes all equivalent states of this automaton using Hopcroft's algorithm.
 	this.removeEquivalentStates = function() {
+		self.materializeErrorState();
 		var alphabet = self.getAlphabet();
 		var partitions = [self.acceptingStates, self.getRejectingStates()];
 		// TODO: find a good name for this variable
@@ -317,12 +371,14 @@ window.FiniteAutomaton = function() {
 		}
 
 		for (var i = 0; i < partitions.length; i++) {
+			// console.log(partitions[i].join(","));
 			while (partitions[i].length > 1) {
 				var state = partitions[i].pop();
 				self.replaceState(state, partitions[i][0]);
 				self.removeState(state);
 			}
 		}
+		self.removeState(ERROR_STATE);
 	};
 
 	// Returns the minimized form of this automaton.
@@ -371,8 +427,37 @@ window.FiniteAutomaton = function() {
 	this.intersection = function(other) {
 		var result = new FiniteAutomaton();
 		if (other instanceof FiniteAutomaton) {
-			// result.stateList = Utilities.cartesianProduct(self.stateList, other.stateList);
-			// TODO
+			self.materializeErrorState();
+			other.materializeErrorState();
+			var pairs = Utilities.cartesianProduct(self.stateList, other.stateList);
+			var acceptingPairs = Utilities.cartesianProduct(self.acceptingStates,
+															other.acceptingStates);
+			var alphabet = Utilities.union(self.getAlphabet(), other.getAlphabet());
+			for (var i = 0; i < pairs.length; i++) {
+				result.addState(pairs[i].join(""));
+			}
+
+			for (var i = 0; i < pairs.length; i++) {
+				var state = pairs[i].join("");
+				var transitions1 = self.transitions[pairs[i][0]];
+				var transitions2 = other.transitions[pairs[i][1]];
+				for (var j = 0; j < alphabet.length; j++) {
+					var target1 = (transitions1.hasOwnProperty(alphabet[j]))
+								  ? transitions1[alphabet[j]][0]
+								  : ERROR_STATE;
+					var target2 = (transitions2.hasOwnProperty(alphabet[j]))
+								  ? transitions2[alphabet[j]][0]
+								  : ERROR_STATE;
+					result.addTransition(state, alphabet[j], target1 + target2);
+				}
+			}
+
+			for (var i = 0; i < acceptingPairs.length; i++) {
+				result.acceptState(acceptingPairs[i].join(""));
+			}
+
+			result.initialState = self.initialState + other.initialState;
+			result.renameStates();
 		}
 		return result;
 	};

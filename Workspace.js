@@ -52,6 +52,7 @@ var genRegexID = function(id) {
 
 window.Workspace = function() {
 	var self = this;
+	var nextID = 0;
 	this.expressionList = [];
 
 	// Returns an object containing a regex, its corresponding
@@ -59,7 +60,7 @@ window.Workspace = function() {
 	// TODO: visible seemed nice at first but is probably useless
 	function buildExprObject(regex) {
 		return {
-			id: self.expressionList.length,
+			id: nextID++,
 			regex: regex,
 			automaton: regex.toFiniteAutomaton(),
 			visible: true
@@ -218,8 +219,8 @@ window.Workspace = function() {
 			}
 
 			var clone = buildExprObject(expr.regex);
-			clone.regex.string = MINIMIZED_PREFIX + " " + clone.regex.string;
-			clone.automaton = clone.automaton.minimize();
+			clone.regex.string = MINIMIZED_PREFIX + " " + expr.regex.string;
+			clone.automaton = expr.automaton.minimize();
 			addObject(clone);
 		});
 
@@ -229,10 +230,13 @@ window.Workspace = function() {
 				self.error(ERROR_INVALID_OPERATION);
 				return;
 			}
-			console.log(expressions);
-			window.a1 = expressions[0].automaton;
-			window.a2 = expressions[1].automaton;
-			alert("Not yet implemented.");
+
+			var first = expressions[0];
+			var second = expressions[1];
+			var obj = buildExprObject(first.regex);
+			obj.regex.string = "[∩] " + first.regex.string + ", " + second.regex.string;
+			obj.automaton = first.automaton.intersection(second.automaton);
+			addObject(obj);
 		});
 
 		equivalenceButton().addEventListener("click", function() {

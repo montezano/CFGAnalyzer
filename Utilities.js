@@ -75,6 +75,13 @@ window.Utilities = {
 		return true;
 	},
 
+	// Returns the union of two arrays.
+	union: function(arr1, arr2) {
+		var result = arr1.concat(arr2);
+		Utilities.removeDuplicates(result);
+		return result;
+	},
+
 	// Returns the intersection of two arrays.
 	intersection: function(arr1, arr2) {
 		var result = [];
@@ -92,6 +99,17 @@ window.Utilities = {
 		for (var i = 0; i < arr1.length; i++) {
 			if (!arr2.includes(arr1[i])) {
 				result.push(arr1[i]);
+			}
+		}
+		return result;
+	},
+
+	// Returns the cartesian product of two arrays
+	cartesianProduct: function(arr1, arr2) {
+		var result = [];
+		for (var i = 0; i < arr1.length; i++) {
+			for (var j = 0; j < arr2.length; j++) {
+				result.push([arr1[i], arr2[j]]);
 			}
 		}
 		return result;
