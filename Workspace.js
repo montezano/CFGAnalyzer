@@ -53,7 +53,7 @@ var genRegexID = function(id) {
 window.Workspace = function() {
 	var self = this;
 	var nextID = 0;
-	this.expressionList = [];
+	this.expressionList = {};
 
 	// Returns an object containing a regex, its corresponding
 	// automaton and an ID.
@@ -137,10 +137,14 @@ window.Workspace = function() {
 		for (var i = 0; i < checkboxes.length; i++) {
 			if (checkboxes[i].checked) {
 				var id = checkboxes[i].parentElement.parentElement.id;
+				console.log(id);
+				console.log(self.expressionList);
 				id = id.replace("regex", "");
 				expressions.push(self.expressionList[id]);
 			}
 		}
+		console.log(checkboxes);
+		console.log(expressions);
 		return expressions;
 	}
 
@@ -178,7 +182,7 @@ window.Workspace = function() {
 
 	// Adds an already-constructed object to this workspace.
 	function addObject(obj) {
-		self.expressionList.push(obj);
+		self.expressionList[obj.id] = obj;
 		self.update(obj);
 	}
 
@@ -202,7 +206,7 @@ window.Workspace = function() {
 				if (regexNode) {
 					regexNode.parentElement.removeChild(regexNode);
 				}
-				self.expressionList.splice(expr.id, 1);
+				delete self.expressionList[expr.id];
 			}
 			updateUI();
 		});
@@ -280,8 +284,10 @@ window.Workspace = function() {
 	// Updates the view.
 	this.update = function(obj) {
 		if (obj == null) {
-			for (var i = 0; i < self.expressionList.length; i++) {
-				self.update(self.expressionList[i]);
+			for (var i in self.expressionList) {
+				if (self.expressionList.hasOwnProperty(i)) {
+					self.update(self.expressionList[i]);
+				}
 			}
 			return;
 		}
