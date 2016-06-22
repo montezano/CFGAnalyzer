@@ -40,6 +40,10 @@ var equivalenceButton = function() {
 	return $("#equivalence_btn");
 };
 
+var equivalenceLabel = function() {
+	return $("#equivalence_result");
+};
+
 var node = function(tag) {
 	return document.createElement(tag);
 };
@@ -67,6 +71,26 @@ window.Workspace = function() {
 			automaton: (regex) ? regex.toFiniteAutomaton() : null,
 			visible: true
 		};
+	}
+
+	// Returns an object containing:
+	// - An ID
+	// - A regex instance with a properly formatted name corresponding
+	//   to the intersection between the given expression objects
+	// - A finite automaton that recognizes the intersection language
+	// two expressions
+	function buildIntersectionObj(firstObj, secondObj) {
+		var result = buildExprObject(null);
+		result.regex.string = INTERSECTION_PREFIX + " " + firstObj.regex.string + ", " + secondObj.regex.string;
+		result.automaton = firstObj.automaton.intersection(secondObj.automaton).minimize();
+		return result;
+	}
+
+	function buildComplementObj(obj) {
+		var result = buildExprObject(null);
+		result.regex.string = COMPLEMENT_PREFIX + " " + obj.regex.string;
+		result.automaton = obj.automaton.complement();
+		return result;
 	}
 
 	// Produces an HTML version of an automaton.
@@ -155,6 +179,7 @@ window.Workspace = function() {
 		minimizeButton().style.display = (numChecked == 1) ? visible : "none";
 		intersectionButton().style.display = (numChecked == 2) ? visible : "none";
 		equivalenceButton().style.display = (numChecked == 2) ? visible : "none";
+		equivalenceLabel().innerHTML = "";
 	}
 
 	// Returns a list item containing a given expression.
@@ -237,10 +262,7 @@ window.Workspace = function() {
 
 			var first = expressions[0];
 			var second = expressions[1];
-			var obj = buildExprObject(null);
-			obj.regex.string = INTERSECTION_PREFIX + " " + first.regex.string + ", " + second.regex.string;
-			obj.automaton = first.automaton.intersection(second.automaton).minimize();
-			addObject(obj);
+			addObject(buildIntersectionObj(first, second));
 		});
 
 		equivalenceButton().addEventListener("click", function() {
@@ -250,35 +272,23 @@ window.Workspace = function() {
 				return;
 			}
 
-			var m1 = expressions[0].automaton;
-			var m2 = expressions[1].automaton;
-			var notM1 = m1.complement();
-			var notM2 = m2.complement();
-			var intM1notM2 = m1.intersection(notM2).minimize();
-			var intM2notM1 = m2.intersection(notM1).minimize();
+			var firstExpr = expressions[0];
+			var secondExpr = expressions[1];
 
-			var obj1 = buildExprObject(null);
-			obj1.regex.string = COMPLEMENT_PREFIX + " " + expressions[0].regex.string;
-			obj1.automaton = notM1;
-			addObject(obj1);
+			var notM1 = buildComplementObj(firstExpr);
+			addObject(notM1);
 
-			var obj2 = buildExprObject(null);
-			obj2.regex.string = COMPLEMENT_PREFIX + " " + expressions[1].regex.string;
-			obj2.automaton = notM2;
-			addObject(obj2);
+			var notM2 = buildComplementObj(secondExpr);
+			addObject(notM2);
 
-			var obj3 = buildExprObject(null);
-			obj3.regex.string = INTERSECTION_PREFIX + " " + expressions[0].regex.string + ", " + obj2.regex.string;
-			obj3.automaton = intM1notM2;
-			addObject(obj3);
+			var intM1notM2 = buildIntersectionObj(firstExpr, notM2);
+			addObject(intM1notM2);
 
-			var obj4 = buildExprObject(null);
-			obj4.regex.string = INTERSECTION_PREFIX + " " + expressions[1].regex.string + ", " + obj1.regex.string;
-			obj4.automaton = intM2notM1;
-			addObject(obj4);
+			var intM2notM1 = buildIntersectionObj(secondExpr, notM1);
+			addObject(intM2notM1);
 
-			var areEquivalent = intM1notM2.isEmpty() && intM2notM1.isEmpty();
-			$("#equivalence_result").innerHTML = "The selected expressions are " + (areEquivalent ? "" : "not ") + "equivalent.";
+			var areEquivalent = intM1notM2.automaton.isEmpty() && intM2notM1.automaton.isEmpty();
+			equivalenceLabel().innerHTML = "The selected expressions are " + (areEquivalent ? "" : "not ") + "equivalent.";
 		});
 	};
 
