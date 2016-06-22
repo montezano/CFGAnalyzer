@@ -6,6 +6,7 @@ var $ = Utilities.$;
 window.workspace = new Workspace();
 var onFileOpen = function(content) {
 	workspace = Workspace.load(content);
+	workspace.initEvents();
 };
 
 addEventListener("load", function() {

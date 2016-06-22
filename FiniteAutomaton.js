@@ -406,24 +406,10 @@ window.FiniteAutomaton = function() {
 		return result;
 	};
 
-	// Returns a new automaton whose recognized language is the union
-	// between this and another automaton's languages.
-	// TODO: this can probably be removed since the intersection algorithm
-	// no longer uses it.
-	/*this.union = function(other) {
-		if (other instanceof FiniteAutomaton) {
-			var result = new FiniteAutomaton();
-			// TODO
-			return result;
-		}
-		return self;
-	};*/
-
 	// Returns a new automaton whose recognized language is the intersection
 	// between this and another automaton's languages.
-	// Uses the product construction to obtain the intersection
-	// http://cs.stackexchange.com/questions/6893/is-this-intersection-of-dfas-correct
-	// TODO: remove the link above when the implementation is complete.
+	// Uses the product construction to obtain the intersection, as further
+	// explained in the report.
 	this.intersection = function(other) {
 		var result = new FiniteAutomaton();
 		if (other instanceof FiniteAutomaton) {
@@ -504,5 +490,18 @@ window.FiniteAutomaton = function() {
 		}
 	};
 };
+
+// Receives a JSON representation of an automaton and returns
+// an instance representing it.
+FiniteAutomaton.load = function(object) {
+	var result = new FiniteAutomaton();
+	for (var prop in object) {
+		if (object.hasOwnProperty(prop)) {
+			result[prop] = object[prop];
+		}
+	}
+	return result;
+};
+
 
 })();

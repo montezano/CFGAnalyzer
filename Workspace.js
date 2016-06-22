@@ -57,36 +57,42 @@ var genRegexID = function(id) {
 	return "regex" + id;
 };
 
+var nextID = 0;
+
+// Returns an object containing a regex, its corresponding
+// automaton and an ID.
+// TODO: visible seemed nice at first but is probably useless
+function buildExprObject(regex) {
+	return {
+		id: nextID++,
+		regex: (regex) ? regex : new Regex(""),
+		automaton: (regex) ? regex.toFiniteAutomaton() : null,
+		visible: true
+	};
+}
+
 window.Workspace = function() {
 	var self = this;
-	var nextID = 0;
 	this.expressionList = {};
-
-	// Returns an object containing a regex, its corresponding
-	// automaton and an ID.
-	// TODO: visible seemed nice at first but is probably useless
-	function buildExprObject(regex) {
-		return {
-			id: nextID++,
-			regex: (regex) ? regex : new Regex(""),
-			automaton: (regex) ? regex.toFiniteAutomaton() : null,
-			visible: true
-		};
-	}
 
 	// Returns an object containing:
 	// - An ID
 	// - A regex instance with a properly formatted name corresponding
 	//   to the intersection between the given expression objects
-	// - A finite automaton that recognizes the intersection language
-	// two expressions
+	// - A finite automaton that recognizes the intersection of two
+	//	 languages
 	function buildIntersectionObj(firstObj, secondObj) {
 		var result = buildExprObject(null);
-		result.regex.string = INTERSECTION_PREFIX + "{" + firstObj.regex.string + ", " + secondObj.regex.string + "}";
+		result.regex.string = INTERSECTION_PREFIX + " {" + firstObj.regex.string + ", " + secondObj.regex.string + "}";
 		result.automaton = firstObj.automaton.intersection(secondObj.automaton).minimize();
 		return result;
 	}
 
+	// Returns an object containing:
+	// - An ID
+	// - A regex instance with a properly formatted name corresponding
+	//   to the complement of a given expression object
+	// - A finite automaton that recognizes the complement of a language
 	function buildComplementObj(obj) {
 		var result = buildExprObject(null);
 		result.regex.string = COMPLEMENT_PREFIX + " " + obj.regex.string;
@@ -189,12 +195,12 @@ window.Workspace = function() {
 		row.id = genRegexID(obj.id);
 
 		var regexCell = node("td");
-		regexCell.className = "ertd"
+		regexCell.className = "ertd";
 		regexCell.innerHTML = obj.regex.string;
 		row.appendChild(regexCell);
 
 		var checkboxCell = node("td");
-		checkboxCell.className = "checktd"
+		checkboxCell.className = "checktd";
 		var checkbox = node("input");
 		checkbox.type = "checkbox";
 		checkbox.addEventListener("change", updateUI);
@@ -204,16 +210,10 @@ window.Workspace = function() {
 		return row;
 	}
 
-	// Adds an already-constructed object to this workspace.
-	function addObject(obj) {
-		self.expressionList[obj.id] = obj;
-		self.update(obj);
-	}
-
 	// Initializes event handlers
 	this.initEvents = function() {
 		updateUI();
-		deleteButton().addEventListener("click", function() {
+		deleteButton().onclick = function() {
 			var expressions = getCheckedExpressions();
 			if (expressions.length == 0) {
 				self.error(ERROR_INVALID_OPERATION);
@@ -233,9 +233,9 @@ window.Workspace = function() {
 				delete self.expressionList[expr.id];
 			}
 			updateUI();
-		});
+		};
 
-		minimizeButton().addEventListener("click", function() {
+		minimizeButton().onclick = function() {
 			var expressions = getCheckedExpressions();
 			if (expressions.length != 1) {
 				self.error(ERROR_INVALID_OPERATION);
@@ -251,10 +251,10 @@ window.Workspace = function() {
 			var clone = buildExprObject(null);
 			clone.regex.string = MINIMIZED_PREFIX + " " + expr.regex.string;
 			clone.automaton = expr.automaton.minimize();
-			addObject(clone);
-		});
+			self.addObject(clone);
+		};
 
-		intersectionButton().addEventListener("click", function() {
+		intersectionButton().onclick = function() {
 			var expressions = getCheckedExpressions();
 			if (expressions.length != 2) {
 				self.error(ERROR_INVALID_OPERATION);
@@ -263,10 +263,10 @@ window.Workspace = function() {
 
 			var first = expressions[0];
 			var second = expressions[1];
-			addObject(buildIntersectionObj(first, second));
-		});
+			self.addObject(buildIntersectionObj(first, second));
+		};
 
-		equivalenceButton().addEventListener("click", function() {
+		equivalenceButton().onclick = function() {
 			var expressions = getCheckedExpressions();
 			if (expressions.length != 2) {
 				self.error(ERROR_INVALID_OPERATION);
@@ -277,20 +277,20 @@ window.Workspace = function() {
 			var secondExpr = expressions[1];
 
 			var notM1 = buildComplementObj(firstExpr);
-			addObject(notM1);
+			self.addObject(notM1);
 
 			var notM2 = buildComplementObj(secondExpr);
-			addObject(notM2);
+			self.addObject(notM2);
 
 			var intM1notM2 = buildIntersectionObj(firstExpr, notM2);
-			addObject(intM1notM2);
+			self.addObject(intM1notM2);
 
 			var intM2notM1 = buildIntersectionObj(secondExpr, notM1);
-			addObject(intM2notM1);
+			self.addObject(intM2notM1);
 
 			var areEquivalent = intM1notM2.automaton.isEmpty() && intM2notM1.automaton.isEmpty();
 			equivalenceLabel().innerHTML = "The selected expressions are " + (areEquivalent ? "" : "not ") + "equivalent.";
-		});
+		};
 	};
 
 	// Shows an error to the user.
@@ -312,8 +312,14 @@ window.Workspace = function() {
 			alert("[BUG] isValid() returned true for: " + regex);
 			return false;
 		}
-		addObject(obj);
+		self.addObject(obj);
 		return true;
+	};
+
+	// Adds an already-constructed object to this workspace.
+	this.addObject = function(obj) {
+		self.expressionList[obj.id] = obj;
+		self.update(obj);
 	};
 
 	// Updates the view.
@@ -343,17 +349,30 @@ window.Workspace = function() {
 	// Returns a string representation of this workspace, which can be
 	// saved to a text file and later recovered via Workspace.load().
 	this.toString = function() {
-		var str = "";
-		// TODO
-		return str;
+		return JSON.stringify(self.expressionList);
 	};
 };
 
 // Receives the content of a file and loads a Workspace instance.
 Workspace.load = function(fileContent) {
 	var result = new Workspace();
-	// TODO
-	console.log(fileContent);
+	var expressionList;
+	try {
+		expressionList = JSON.parse(fileContent);
+	} catch (e) {
+		alert("Invalid file");
+		return result;
+	}
+
+	for (var i in expressionList) {
+		if (expressionList.hasOwnProperty(i)) {
+			var expr = expressionList[i];
+			var obj = buildExprObject(null);
+			obj.regex.string = expr.regex.string;
+			obj.automaton = FiniteAutomaton.load(expr.automaton);
+			result.addObject(obj);
+		}
+	}
 	return result;
 };
 
