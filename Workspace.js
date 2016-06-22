@@ -22,6 +22,10 @@ var regexList = function() {
 	return $("#regex_list");
 };
 
+var deleteButton = function() {
+	return $("#delete_btn");
+};
+
 var minimizeButton = function() {
 	return $("#minimize_btn");
 };
@@ -50,6 +54,9 @@ window.Workspace = function() {
 	var self = this;
 	this.expressionList = [];
 
+	// Returns an object containing a regex, its corresponding
+	// automaton and an ID.
+	// TODO: visible seemed nice at first but is probably useless
 	function buildExprObject(regex) {
 		return {
 			id: self.expressionList.length,
@@ -79,7 +86,7 @@ window.Workspace = function() {
 			header = node("tr");
 			cell = node("td");
 			// cell.classList.add("emptyCell");
-			cell.innerHTML = "δ"
+			cell.innerHTML = "δ";
 			header.appendChild(cell);
 
 			for (var i = 0; i < alphabet.length; i++) {
@@ -140,9 +147,11 @@ window.Workspace = function() {
 	function updateUI() {
 		var checked = getCheckedExpressions();
 		var numChecked = checked.length;
-		minimizeButton().style.display = (numChecked == 1) ? "block" : "none";
-		intersectionButton().style.display = (numChecked == 2) ? "block" : "none";
-		equivalenceButton().style.display = (numChecked == 2) ? "block" : "none";
+		var visible = "inline";
+		deleteButton().style.display = (numChecked > 0) ? visible : "none";
+		minimizeButton().style.display = (numChecked == 1) ? visible : "none";
+		intersectionButton().style.display = (numChecked == 2) ? visible : "none";
+		equivalenceButton().style.display = (numChecked == 2) ? visible : "none";
 	}
 
 	// Returns a list item containing a given expression.
@@ -173,13 +182,35 @@ window.Workspace = function() {
 	// Initializes event handlers
 	this.initEvents = function() {
 		updateUI();
+		deleteButton().addEventListener("click", function() {
+			var expressions = getCheckedExpressions();
+			if (expressions.length == 0) {
+				self.error(ERROR_INVALID_OPERATION);
+				return;
+			}
+			
+			for (var i = 0; i < expressions.length; i++) {
+				var expr = expressions[i];
+				var automatonNode = $("#" + genAutomatonID(expr.id));
+				if (automatonNode) {
+					automatonNode.parentElement.removeChild(automatonNode);
+				}
+				var regexNode = $("#" + genRegexID(expr.id));
+				if (regexNode) {
+					regexNode.parentElement.removeChild(regexNode);
+				}
+				self.expressionList.splice(expr.id, 1);
+			}
+			updateUI();
+		});
+
 		minimizeButton().addEventListener("click", function() {
 			var expressions = getCheckedExpressions();
 			if (expressions.length != 1) {
 				self.error(ERROR_INVALID_OPERATION);
 				return;
 			}
-
+			
 			var expr = expressions[0];
 			if (expr.regex.string.startsWith(MINIMIZED_PREFIX)) {
 				self.error(ERROR_ALREADY_MINIMIZED);
