@@ -81,7 +81,7 @@ window.Workspace = function() {
 	// two expressions
 	function buildIntersectionObj(firstObj, secondObj) {
 		var result = buildExprObject(null);
-		result.regex.string = INTERSECTION_PREFIX + " " + firstObj.regex.string + ", " + secondObj.regex.string;
+		result.regex.string = INTERSECTION_PREFIX + "{" + firstObj.regex.string + ", " + secondObj.regex.string + "}";
 		result.automaton = firstObj.automaton.intersection(secondObj.automaton).minimize();
 		return result;
 	}
