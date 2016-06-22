@@ -7,6 +7,7 @@ var ERROR_ALREADY_MINIMIZED = "The selected expression is already minimized";
 var NO_TRANSITION = "—";
 var INITIAL_STATE = "➞";
 var ACCEPTING_STATE = "⚹";
+var TRANSITION_SYMBOL = "δ";
 var MINIMIZED_PREFIX = "[MIN]";
 var INTERSECTION_PREFIX = "[∩]";
 var COMPLEMENT_PREFIX = "[NOT]";
@@ -113,7 +114,7 @@ window.Workspace = function() {
 			header = node("tr");
 			cell = node("th");
 			// cell.classList.add("emptyCell");
-			cell.innerHTML = "δ";
+			cell.innerHTML = TRANSITION_SYMBOL;
 			header.appendChild(cell);
 
 			for (var i = 0; i < alphabet.length; i++) {
