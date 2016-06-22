@@ -1,7 +1,7 @@
 (function(){
 "use strict";
 
-var ERROR_STATE = "__error_state__";
+var ERROR_STATE = "φ";
 
 window.FiniteAutomaton = function() {
 	var self = this;
@@ -391,8 +391,8 @@ window.FiniteAutomaton = function() {
 
 	// Returns a new automaton whose recognized language is the complement
 	// of this one.
-	// TODO: handle the error state
 	this.complement = function() {
+		self.materializeErrorState();
 		var result = new FiniteAutomaton();
 		for (var i = 0; i < self.stateList.length; i++) {
 			var state = self.stateList[i];

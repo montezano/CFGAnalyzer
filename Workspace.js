@@ -8,6 +8,8 @@ var NO_TRANSITION = "—";
 var INITIAL_STATE = "➞";
 var ACCEPTING_STATE = "⚹";
 var MINIMIZED_PREFIX = "[MIN]";
+var INTERSECTION_PREFIX = "[∩]";
+var COMPLEMENT_PREFIX = "[NOT]";
 
 var $ = Utilities.$;
 var container = function() {
@@ -61,8 +63,8 @@ window.Workspace = function() {
 	function buildExprObject(regex) {
 		return {
 			id: nextID++,
-			regex: regex,
-			automaton: regex.toFiniteAutomaton(),
+			regex: (regex) ? regex : new Regex(""),
+			automaton: (regex) ? regex.toFiniteAutomaton() : null,
 			visible: true
 		};
 	}
@@ -137,14 +139,10 @@ window.Workspace = function() {
 		for (var i = 0; i < checkboxes.length; i++) {
 			if (checkboxes[i].checked) {
 				var id = checkboxes[i].parentElement.parentElement.id;
-				console.log(id);
-				console.log(self.expressionList);
 				id = id.replace("regex", "");
 				expressions.push(self.expressionList[id]);
 			}
 		}
-		console.log(checkboxes);
-		console.log(expressions);
 		return expressions;
 	}
 
@@ -224,7 +222,7 @@ window.Workspace = function() {
 				return;
 			}
 
-			var clone = buildExprObject(expr.regex);
+			var clone = buildExprObject(null);
 			clone.regex.string = MINIMIZED_PREFIX + " " + expr.regex.string;
 			clone.automaton = expr.automaton.minimize();
 			addObject(clone);
@@ -239,9 +237,9 @@ window.Workspace = function() {
 
 			var first = expressions[0];
 			var second = expressions[1];
-			var obj = buildExprObject(first.regex);
-			obj.regex.string = "[∩] " + first.regex.string + ", " + second.regex.string;
-			obj.automaton = first.automaton.intersection(second.automaton);
+			var obj = buildExprObject(null);
+			obj.regex.string = INTERSECTION_PREFIX + " " + first.regex.string + ", " + second.regex.string;
+			obj.automaton = first.automaton.intersection(second.automaton).minimize();
 			addObject(obj);
 		});
 
@@ -251,10 +249,36 @@ window.Workspace = function() {
 				self.error(ERROR_INVALID_OPERATION);
 				return;
 			}
-			console.log(expressions);
-			window.a1 = expressions[0].automaton;
-			window.a2 = expressions[1].automaton;
-			alert("Not yet implemented.");
+
+			var m1 = expressions[0].automaton;
+			var m2 = expressions[1].automaton;
+			var notM1 = m1.complement();
+			var notM2 = m2.complement();
+			var intM1notM2 = m1.intersection(notM2).minimize();
+			var intM2notM1 = m2.intersection(notM1).minimize();
+
+			var obj1 = buildExprObject(null);
+			obj1.regex.string = COMPLEMENT_PREFIX + " " + expressions[0].regex.string;
+			obj1.automaton = notM1;
+			addObject(obj1);
+
+			var obj2 = buildExprObject(null);
+			obj2.regex.string = COMPLEMENT_PREFIX + " " + expressions[1].regex.string;
+			obj2.automaton = notM2;
+			addObject(obj2);
+
+			var obj3 = buildExprObject(null);
+			obj3.regex.string = INTERSECTION_PREFIX + " " + expressions[0].regex.string + ", " + obj2.regex.string;
+			obj3.automaton = intM1notM2;
+			addObject(obj3);
+
+			var obj4 = buildExprObject(null);
+			obj4.regex.string = INTERSECTION_PREFIX + " " + expressions[1].regex.string + ", " + obj1.regex.string;
+			obj4.automaton = intM2notM1;
+			addObject(obj4);
+
+			var areEquivalent = intM1notM2.isEmpty() && intM2notM1.isEmpty();
+			$("#equivalence_result").innerHTML = "The selected expressions are " + (areEquivalent ? "" : "not ") + "equivalent.";
 		});
 	};
 
