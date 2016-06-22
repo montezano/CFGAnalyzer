@@ -361,7 +361,7 @@ Workspace.load = function(fileContent) {
 		expressionList = JSON.parse(fileContent);
 	} catch (e) {
 		alert("Invalid file");
-		return result;
+		return null;
 	}
 
 	for (var i in expressionList) {

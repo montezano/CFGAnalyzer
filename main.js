@@ -5,8 +5,11 @@ var $ = Utilities.$;
 
 window.workspace = new Workspace();
 var onFileOpen = function(content) {
-	workspace = Workspace.load(content);
-	workspace.initEvents();
+	var newWorkspace = Workspace.load(content);
+	if (newWorkspace) {
+		workspace = newWorkspace;
+		workspace.initEvents();
+	}
 };
 
 addEventListener("load", function() {
