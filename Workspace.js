@@ -104,20 +104,20 @@ window.Workspace = function() {
 
 			var alphabet = automaton.getAlphabet();
 			var header = node("tr");
-			var cell = node("td");
+			var cell = node("th");
 			cell.colSpan = alphabet.length + 1;
 			cell.innerHTML = regex.string;
 			header.appendChild(cell);
 			table.appendChild(header);
 
 			header = node("tr");
-			cell = node("td");
+			cell = node("th");
 			// cell.classList.add("emptyCell");
 			cell.innerHTML = "δ";
 			header.appendChild(cell);
 
 			for (var i = 0; i < alphabet.length; i++) {
-				cell = node("td");
+				cell = node("th");
 				cell.innerHTML = alphabet[i];
 				header.appendChild(cell);
 			}
@@ -128,7 +128,7 @@ window.Workspace = function() {
 			for (var i = 0; i < automaton.stateList.length; i++) {
 				var state = automaton.stateList[i];
 				row = node("tr");
-				cell = node("td");
+				cell = node("th");
 				var printableState = state;
 				if (automaton.acceptingStates.includes(state)) {
 					printableState = ACCEPTING_STATE + printableState;
