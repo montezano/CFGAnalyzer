@@ -4,9 +4,9 @@
 var ERROR_INVALID_REGEX = "Invalid regular expression";
 var ERROR_INVALID_OPERATION = "Invalid operation";
 var ERROR_ALREADY_MINIMIZED = "The selected expression is already minimized";
-var NO_TRANSITION = "-";
-var INITIAL_STATE = "->";
-var ACCEPTING_STATE = "*";
+var NO_TRANSITION = "—";
+var INITIAL_STATE = "➞";
+var ACCEPTING_STATE = "⚹";
 var MINIMIZED_PREFIX = "[MIN]";
 
 var $ = Utilities.$;
@@ -78,7 +78,8 @@ window.Workspace = function() {
 
 			header = node("tr");
 			cell = node("td");
-			cell.classList.add("emptyCell");
+			// cell.classList.add("emptyCell");
+			cell.innerHTML = "δ"
 			header.appendChild(cell);
 
 			for (var i = 0; i < alphabet.length; i++) {
@@ -178,7 +179,7 @@ window.Workspace = function() {
 				self.error(ERROR_INVALID_OPERATION);
 				return;
 			}
-			
+
 			var expr = expressions[0];
 			if (expr.regex.string.startsWith(MINIMIZED_PREFIX)) {
 				self.error(ERROR_ALREADY_MINIMIZED);
