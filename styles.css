@@ -26,6 +26,10 @@ body {
 	width: 100%;
 }
 
+#regex_list input[type='checkbox'] {
+	float: right;
+}
+
 #regex_add {
 	width: inherit;
 	margin-bottom: 5px;
