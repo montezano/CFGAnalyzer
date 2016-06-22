@@ -351,29 +351,28 @@ window.Workspace = function() {
 	this.toString = function() {
 		return JSON.stringify(self.expressionList);
 	};
-};
 
-// Receives the content of a file and loads a Workspace instance.
-Workspace.load = function(fileContent) {
-	var result = new Workspace();
-	var expressionList;
-	try {
-		expressionList = JSON.parse(fileContent);
-	} catch (e) {
-		alert("Invalid file");
-		return null;
-	}
 
-	for (var i in expressionList) {
-		if (expressionList.hasOwnProperty(i)) {
-			var expr = expressionList[i];
-			var obj = buildExprObject(null);
-			obj.regex.string = expr.regex.string;
-			obj.automaton = FiniteAutomaton.load(expr.automaton);
-			result.addObject(obj);
+	// Receives the content of a file and adds the expressions it contains.
+	this.load = function(fileContent) {
+		var expressionList;
+		try {
+			expressionList = JSON.parse(fileContent);
+		} catch (e) {
+			alert("Invalid file");
+			return;
 		}
-	}
-	return result;
+
+		for (var i in expressionList) {
+			if (expressionList.hasOwnProperty(i)) {
+				var expr = expressionList[i];
+				var obj = buildExprObject(null);
+				obj.regex.string = expr.regex.string;
+				obj.automaton = FiniteAutomaton.load(expr.automaton);
+				self.addObject(obj);
+			}
+		}
+	};
 };
 
 })();
