@@ -4,6 +4,14 @@ body {
 	margin: 0;
 }
 
+.action_btn {
+	width: 100%;
+}
+
+#button_bar td {
+	width: 50%;
+}
+
 #file_selector {
 	display: none;
 }
@@ -37,6 +45,7 @@ body {
 .ertd {
 	width: 220px;
 	white-space: normal;
+	word-wrap: break-word;
 }
 
 #regex_add {
@@ -82,29 +91,18 @@ body {
 	width: 100%;
 }
 
-/*#button_bar table td {
-	width: 50%;
-}*/
-
-/*#button_bar input[type='button'] {
-	margin: 3 auto 0 auto;
-}*/
-
 .automaton {
 	display: inline-table;
 	margin-right: 20px;
+	table-layout: fixed;
 }
 
-.automaton td {
+.automaton td, .automaton th {
 	border: 1px solid black;
 	padding: 10px;
 	text-align: center;
 }
 
-/*.automaton .emptyCell {
-	opacity: 0;
-}*/
-
-.automaton td:first-child, .automaton tr:nth-child(2) td {
+.automaton th {
 	background-color: #DDD;
 }
