@@ -4,6 +4,14 @@ body {
 	margin: 0;
 }
 
+.action_btn {
+	width: 100%;
+}
+
+#button_bar td {
+	width: 50%;
+}
+
 #file_selector {
 	display: none;
 }
