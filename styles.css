@@ -26,8 +26,17 @@ body {
 	width: 100%;
 }
 
-#regex_list input[type='checkbox'] {
-	float: right;
+#regex_list {
+	table-layout: fixed;
+}
+
+.checktd {
+	width: 20px;
+}
+
+.ertd {
+	width: 220px;
+	white-space: normal;
 }
 
 #regex_add {

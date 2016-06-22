@@ -161,10 +161,12 @@ window.Workspace = function() {
 		row.id = genRegexID(obj.id);
 
 		var regexCell = node("td");
+		regexCell.className = "ertd"
 		regexCell.innerHTML = obj.regex.string;
 		row.appendChild(regexCell);
 
 		var checkboxCell = node("td");
+		checkboxCell.className = "checktd"
 		var checkbox = node("input");
 		checkbox.type = "checkbox";
 		checkbox.addEventListener("change", updateUI);
@@ -189,7 +191,7 @@ window.Workspace = function() {
 				self.error(ERROR_INVALID_OPERATION);
 				return;
 			}
-			
+
 			for (var i = 0; i < expressions.length; i++) {
 				var expr = expressions[i];
 				var automatonNode = $("#" + genAutomatonID(expr.id));
@@ -211,7 +213,7 @@ window.Workspace = function() {
 				self.error(ERROR_INVALID_OPERATION);
 				return;
 			}
-			
+
 			var expr = expressions[0];
 			if (expr.regex.string.startsWith(MINIMIZED_PREFIX)) {
 				self.error(ERROR_ALREADY_MINIMIZED);
