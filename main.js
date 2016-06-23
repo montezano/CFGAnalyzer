@@ -28,7 +28,7 @@ addEventListener("load", function() {
 		File.save(workspace.toString());
 	});
 
-	$("#regex").addEventListener("keyup", function(ev) {
+	$("#regex").addEventListener("keydown", function(ev) {
 		if (ev.keyCode == 13) {
 			if (workspace.addRegex(this.value)) {
 				this.value = "";
