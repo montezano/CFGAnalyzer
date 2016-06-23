@@ -21,7 +21,11 @@ window.File = {
 			document.body.appendChild(downloadLink);
 		}
 		downloadLink.href = textFile;
-		downloadLink.click();
+		if (window.navigator.msSaveBlob) {
+			window.navigator.msSaveBlob(blob, DEFAULT_FILE_NAME);
+		} else {
+			downloadLink.click();
+		}
 	},
 	open: function(file, callback) {
 		if (file) {
@@ -30,7 +34,7 @@ window.File = {
 				callback(e.target.result);
 			};
 			reader.readAsText(file);
-		}		
+		}
 	}
 };
 
