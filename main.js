@@ -3,6 +3,12 @@
 
 var $ = Utilities.$;
 
+if (!Array.prototype.includes) {
+	Array.prototype.includes = function(value) {
+		return this.indexOf(value) != -1;
+	};
+}
+
 window.workspace = new Workspace();
 var onFileOpen = function(content) {
 	workspace.load(content);
@@ -11,9 +17,6 @@ var onFileOpen = function(content) {
 
 addEventListener("load", function() {
 	workspace.initEvents();
-	// workspace.addRegex("a(cd)*|b(cd)*");
-	// workspace.addRegex("(a|b)(cd)*");
-	//workspace.addRegex("aaababbcaabcbacbabcbabcaaababbcaabcbacbabcbabc");
 
 	$("#file_selector").addEventListener("change", function(ev) {
 		var file = ev.target.files[0];
