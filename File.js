@@ -7,8 +7,15 @@ var textFile = null;
 var downloadLink = null;
 
 window.File = {
+	// Saves a given content in a file
 	save: function(content) {
-		var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+		var blob = new Blob([content], {type: "application/text;charset=utf-8"});
+		if (window.navigator.msSaveBlob) {
+			// Support for Internet Explorer
+			window.navigator.msSaveBlob(blob, DEFAULT_FILE_NAME);
+			return;
+		}
+
 		if (textFile !== null) {
 			URL.revokeObjectURL(textFile);
 		}
@@ -21,12 +28,9 @@ window.File = {
 			document.body.appendChild(downloadLink);
 		}
 		downloadLink.href = textFile;
-		if (window.navigator.msSaveBlob) {
-			window.navigator.msSaveBlob(blob, DEFAULT_FILE_NAME);
-		} else {
-			downloadLink.click();
-		}
+		downloadLink.click();
 	},
+	// Opens a file and then calls a callback function passing the content to it.
 	open: function(file, callback) {
 		if (file) {
 			var reader = new FileReader();

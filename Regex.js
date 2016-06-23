@@ -279,10 +279,4 @@ window.Regex = function(str) {
 	};
 };
 
-// var expr = "(a|b)(c|d)*(e|f+g)+";
-// console.log("Regex: " + expr);
-// var regex = new Regex(expr);
-// var dfa = regex.toFiniteAutomaton();
-// dfa.debug();
-
 })();
