@@ -106,3 +106,7 @@ body {
 .automaton th {
 	background-color: #DDD;
 }
+
+.automaton .accepting_state {
+	vertical-align: sub;
+}

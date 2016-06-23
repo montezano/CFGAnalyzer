@@ -6,7 +6,7 @@ var ERROR_INVALID_OPERATION = "Invalid operation";
 var ERROR_ALREADY_MINIMIZED = "The selected expression is already minimized";
 var NO_TRANSITION = "—";
 var INITIAL_STATE = "➞";
-var ACCEPTING_STATE = "⚹";
+var ACCEPTING_STATE = "<span class='accepting_state'>*</span>";
 var TRANSITION_SYMBOL = "δ";
 var MINIMIZED_PREFIX = "[MIN]";
 var INTERSECTION_PREFIX = "[∩]";
