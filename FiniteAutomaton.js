@@ -161,7 +161,6 @@ window.FiniteAutomaton = function() {
 			self.currentState = null;
 			return;
 		}
-		// FIXME: if we need to handle non-determinism this will need to be changed.
 		self.currentState = self.transitions[self.currentState][input][0];
 	};
 
@@ -335,7 +334,6 @@ window.FiniteAutomaton = function() {
 		self.materializeErrorState();
 		var alphabet = self.getAlphabet();
 		var partitions = [self.acceptingStates, self.getRejectingStates()];
-		// TODO: find a good name for this variable
 		var w = [self.acceptingStates];
 		while (w.length > 0) {
 			var set = w.pop();

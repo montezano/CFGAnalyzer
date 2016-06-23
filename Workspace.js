@@ -61,13 +61,11 @@ var nextID = 0;
 
 // Returns an object containing a regex, its corresponding
 // automaton and an ID.
-// TODO: visible seemed nice at first but is probably useless
 function buildExprObject(regex) {
 	return {
 		id: nextID++,
 		regex: (regex) ? regex : new Regex(""),
-		automaton: (regex) ? regex.toFiniteAutomaton() : null,
-		visible: true
+		automaton: (regex) ? regex.toFiniteAutomaton() : null
 	};
 }
 
@@ -334,10 +332,8 @@ window.Workspace = function() {
 		}
 
 		var automatonNode = $("#" + genAutomatonID(obj.id));
-		if (!automatonNode && obj.visible) {
+		if (!automatonNode) {
 			container().appendChild(printableAutomaton(obj));
-		} else if (automatonNode && !obj.visible) {
-			automatonNode.parentElement.removeChild(automatonNode);
 		}
 
 		var regexNode = $("#" + genRegexID(obj.id));
