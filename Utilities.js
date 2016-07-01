@@ -1,38 +1,15 @@
 (function(){
 "use strict";
 
-var LEFT = 1;
-var RIGHT = 2;
-var NEXT = 3;
+// TODO: remove all unnecessary stuff from this file
 
 window.Utilities = {
-	// A list of valid terminal terms (it's filled in the loops below)
-	alphabet: ["&"],
+	// A list of valid non-terminal terms (it's filled in the loop below)
+	nonTerminals: [],
 
-	// De Simone traversal commands
-	VISIT_LEFT: LEFT,
-	VISIT_RIGHT: RIGHT,
-	VISIT_NEXT: NEXT,
-
-	// The standard error message.
-	INVALID_REGEX: "Error: Invalid regular expression",
-
-	/* Structure:
-	 * "operator": [number of operands,
-	 *				priority,
-	 *				[descending commands],
-	 *				[ascending commands]]
-	 */
-	operatorInfo: {
-		"?": [1, 3, [LEFT, NEXT], [NEXT]],
-		"*": [1, 3, [LEFT, NEXT], [LEFT, NEXT]],
-		"+": [1, 3, [LEFT], [LEFT, NEXT]],
-		"|": [2, 1, [LEFT, RIGHT], [NEXT]],
-		".": [2, 2, [LEFT], [RIGHT]]
-	},
-
-	// A list containing only the operator symbols (filled below)
-	operators: null,
+	// Error messages
+	ERROR_INVALID_GRAMMAR = "Invalid grammar",
+	ERROR_INVALID_PRODUCTION = "Invalid production",
 
 	// Returns the number of operands of an operator.
 	numOperands: function(operator) {
@@ -149,14 +126,7 @@ window.Utilities = {
 
 // Adds all lowercase letters to the terminal list
 for (var code = 65; code < 65 + 26; code++) {
-	Utilities.alphabet.push(String.fromCharCode(code).toLowerCase());
+	Utilities.alphabet.push(String.fromCharCode(code).toUpperCase());
 }
-
-// Adds all digits to the terminal list
-for (var i = 0; i < 10; i++) {
-	Utilities.alphabet.push(i + "");
-}
-
-Utilities.operators = Object.keys(Utilities.operatorInfo);
 
 })();

@@ -19,12 +19,9 @@ if (!String.prototype.startsWith) {
 window.workspace = new Workspace();
 var onFileOpen = function(content) {
 	workspace.load(content);
-	workspace.initEvents();
 };
 
 addEventListener("load", function() {
-	workspace.initEvents();
-
 	$("#file_selector").addEventListener("change", function(ev) {
 		var file = ev.target.files[0];
 		File.open(file, onFileOpen);
@@ -38,17 +35,9 @@ addEventListener("load", function() {
 		File.save(workspace.toString());
 	});
 
-	$("#regex").addEventListener("keydown", function(ev) {
-		if (ev.keyCode == 13) {
-			if (workspace.addRegex(this.value)) {
-				this.value = "";
-			}
-		}
-	});
-
-	$("#add_btn").addEventListener("click", function() {
-		if (workspace.addRegex($("#regex").value)) {
-			$("#regex").value = "";
+	$("#analyze_btn").addEventListener("click", function() {
+		if (workspace.setCFG($("#cfg").value)) {
+			$("#cfg").value = "";
 		}
 	});
 });
