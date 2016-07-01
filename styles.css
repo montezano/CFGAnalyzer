@@ -34,27 +34,9 @@ body {
 	width: 100%;
 }
 
-#regex_list {
-	table-layout: fixed;
-}
-
-.checktd {
-	width: 20px;
-}
-
-.ertd {
-	width: 220px;
-	white-space: normal;
-	word-wrap: break-word;
-}
-
 #regex_add {
 	width: inherit;
 	margin-bottom: 5px;
-}
-
-#add_btn {
-	float: right;
 }
 
 .input-wrapper {
@@ -62,9 +44,9 @@ body {
 	padding-right: .5em;
 }
 
-#regex {
+#cfg {
+	height: 200px;
 	width: 100%;
-	padding-left: 2px;
 }
 
 #sidebar {
@@ -82,31 +64,7 @@ body {
 	width: 100%;
 }
 
-#regex_list td:last-child, #button_bar {
-	text-align: center;
-}
-
 #button_bar table {
 	text-align: center;
 	width: 100%;
-}
-
-.automaton {
-	display: inline-table;
-	margin-right: 20px;
-	table-layout: fixed;
-}
-
-.automaton td, .automaton th {
-	border: 1px solid black;
-	padding: 10px;
-	text-align: center;
-}
-
-.automaton th {
-	background-color: #DDD;
-}
-
-.automaton .accepting_state {
-	vertical-align: sub;
 }

@@ -1,7 +1,7 @@
 (function(){
 "use strict";
 
-var DEFAULT_FILE_NAME = "er.txt";
+var DEFAULT_FILE_NAME = "glc.txt";
 
 var textFile = null;
 var downloadLink = null;

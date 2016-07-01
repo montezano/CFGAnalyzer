@@ -1,15 +1,11 @@
 <html>
 <head>
-<title>Linguagens Formais e Compiladores - T1</title>
+<title>Linguagens Formais e Compiladores - T2</title>
 <meta http-equiv="Content-type" content="text/html;charset=utf-8">
 <script src="Utilities.js"></script>
 <script src="File.js"></script>
-<script src="Node.js"></script>
-<script src="FiniteAutomaton.js"></script>
-<script src="Regex.js"></script>
 <script src="Workspace.js"></script>
-<script src="main.js"></script>
-<script src="tests.js"></script>
+<script src="Main.js"></script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -22,26 +18,11 @@
 			<input type="button" id="open" value="Open">
 			<input type="button" id="save" value="Save">
 		</div>
-		<div id="regex_add">
-			<input type="button" id="add_btn" value="Add">
-			<div class="input-wrapper">
-				<input type="text" id="regex" placeholder="expression here...">
-			</div>
+		<div id="cfg_add">
+			<textarea id="cfg"></textarea><br>
+			<input type="button" id="add_btn" value="Analyze">
 		</div>
-		<table id="regex_list"></table>
-		<div id="button_bar">
-			<table>
-				<tr>
-					<td><input type="button" id="delete_btn" class="action_btn" value="Delete"></td>
-					<td><input type="button" id="minimize_btn" class="action_btn" value="Minimize"></td>
-				</tr>
-				<tr>
-					<td><input type="button" id="intersect_btn" class="action_btn" value="Intersect"></td>
-					<td><input type="button" id="equivalence_btn" class="action_btn" value="Equivalence"></td>
-				</tr>
-			</table>
-		</div>
-		<div id="equivalence_result"></div>
+		<div id="button_bar"></div>
 	</div>
 	<div id="main"></div>
 </div>
