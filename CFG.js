@@ -19,8 +19,13 @@ window.CFG = function(cfgStr) {
 		}
 	*/
 	this.stringToProduction = function(str) {
-		// TODO
-		return null;
+		map = {};
+		explodedStr = str.split(' ');
+		dividedStr = explodedStr.split('->');
+		initialSymbol = dividedStr[0][0];
+		productions = dividedStr[1].split('|');
+		map[initialSymbol] = productions;
+		return map;
 	};
 
 	// Receives a string representation of a group of productions

@@ -16,6 +16,28 @@ if (!String.prototype.startsWith) {
 	};
 }
 
+if (!Array.prototype.split) {
+	Array.prototype.split = function(separator) {
+		outArray = [];
+
+		lastIndex = 0;
+		for (i = 0; i < this.length; i++) {
+			if (this[i] == separator) {
+				outArray.push(this.slice(lastIndex, i));
+				lastIndex = i+1;
+			}
+		}
+
+		if (lastIndex != 0) {
+			outArray.push(this.slice(lastIndex, i));
+		} else {
+			return this;
+		}
+
+		return outArray;
+	};
+}
+
 window.workspace = new Workspace();
 var onFileOpen = function(content) {
 	workspace.load(content);
