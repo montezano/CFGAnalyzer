@@ -46,6 +46,8 @@ window.CFG = function(cfgStr) {
 		self.productions[name].push(symbolSequence);
 	};
 
+	// Receives the informations about a production and removes it
+	// from this CFG.
 	this.removeProduction = function(name, symbolSequence) {
 		if (!self.productions.hasOwnProperty(name)) {
 			return;
@@ -55,6 +57,49 @@ window.CFG = function(cfgStr) {
 			self.productions[name].splice(index, 1);
 		}
 	};
+
+	/*
+	Returns an object containing:
+	- hasLeftRecursion: true if this grammar has a left recursion, false otherwise;
+	- hasDirectRecursion: true if the left recursion is direct, false otherwise;
+	- recursiveNonTerminals: an array containing all recursive non-terminals.
+	*/
+	this.getRecursionInformation = function() {
+		return {
+			hasLeftRecursion: false,
+			hasDirectRecursion: false,
+			recursiveNonTerminals: []
+		};
+	};
+
+	/*
+	Returns an object containing:
+	- isFactored: true if this grammar is factored, false otherwise;
+	- hasDirectNonFactorization: true if this grammar has a direct
+	  non-factorization, false otherwise;
+	- nonFactoredNonTerminals: an array containing all non-factored non-terminals.
+	*/
+	this.getFactorizationInformation = function() {
+		return {
+			isFactored: true,
+			hasDirectNonFactorization: false,
+			nonFactoredNonTerminals: []
+		};
+	};
+
+	// Returns a map associating each non-terminal of this grammar
+	// with its corresponding first array.
+	this.first = function() {
+		// TODO
+		return {};
+	};
+
+	// Returns a map associating each non-terminal of this grammar
+	// with its corresponding follow array.
+	this.follow = function() {
+		// TODO
+		return {};
+	};
 };
 
-});
+})();
