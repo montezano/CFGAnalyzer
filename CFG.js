@@ -19,11 +19,11 @@ window.CFG = function(cfgStr) {
 		}
 	*/
 	this.stringToProduction = function(str) {
-		map = {};
-		explodedStr = str.split(' ');
-		dividedStr = explodedStr.split('->');
-		initialSymbol = dividedStr[0][0];
-		productions = dividedStr[1].split('|');
+		var map = {};
+		var explodedStr = str.split(' ');
+		var dividedStr = explodedStr.split('->');
+		var initialSymbol = dividedStr[0][0];
+		var productions = dividedStr[1].split('|');
 		map[initialSymbol] = productions;
 		return map;
 	};
