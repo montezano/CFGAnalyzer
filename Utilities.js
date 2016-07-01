@@ -8,8 +8,8 @@ window.Utilities = {
 	nonTerminals: [],
 
 	// Error messages
-	ERROR_INVALID_GRAMMAR = "Invalid grammar",
-	ERROR_INVALID_PRODUCTION = "Invalid production",
+	ERROR_INVALID_GRAMMAR: "Invalid grammar",
+	ERROR_INVALID_PRODUCTION: "Invalid production",
 
 	// Returns the number of operands of an operator.
 	numOperands: function(operator) {
@@ -126,7 +126,7 @@ window.Utilities = {
 
 // Adds all lowercase letters to the terminal list
 for (var code = 65; code < 65 + 26; code++) {
-	Utilities.alphabet.push(String.fromCharCode(code).toUpperCase());
+	Utilities.nonTerminals.push(String.fromCharCode(code).toUpperCase());
 }
 
 })();
