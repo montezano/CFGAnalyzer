@@ -7,18 +7,18 @@ window.Utilities = {
 	// A list of valid non-terminal terms (it's filled in the loop below)
 	nonTerminals: [],
 
+	EPSILON: "&",
+
 	// Error messages
 	ERROR_INVALID_GRAMMAR: "Invalid grammar",
 	ERROR_INVALID_PRODUCTION: "Invalid production",
 
-	// Returns the number of operands of an operator.
-	numOperands: function(operator) {
-		return Utilities.operatorInfo[operator][0];
+	isNonTerminal: function(symbol) {
+		return Utilities.nonTerminals.includes(symbol[0]) && !isNaN(symbol.slice(1));
 	},
 
-	// Returns the priority of an operator.
-	priority: function(operator) {
-		return Utilities.operatorInfo[operator][1];
+	isTerminal: function(symbol) {
+		return !Utilities.isNonTerminal(symbol) && symbol != Utilities.EPSILON;
 	},
 
 	// Generates a name for the (n+1)-th state of an automaton.
@@ -37,6 +37,7 @@ window.Utilities = {
 		for (var i = 0; i < array.length; i++) {
 			if (array[i] == array[i + 1]) {
 				array.splice(i + 1, 1);
+				i--;
 			}
 		}
 	},

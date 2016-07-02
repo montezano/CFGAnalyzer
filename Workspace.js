@@ -12,53 +12,9 @@ var buttonBar = function() {
 	return $("#button_bar");
 };
 
-var regexList = function() {
-	return $("#regex_list");
-};
-
-var deleteButton = function() {
-	return $("#delete_btn");
-};
-
-var minimizeButton = function() {
-	return $("#minimize_btn");
-};
-
-var intersectionButton = function() {
-	return $("#intersect_btn");
-};
-
-var equivalenceButton = function() {
-	return $("#equivalence_btn");
-};
-
-var equivalenceLabel = function() {
-	return $("#equivalence_result");
-};
-
 var node = function(tag) {
 	return document.createElement(tag);
 };
-
-var genAutomatonID = function(id) {
-	return "aut" + id;
-};
-
-var genRegexID = function(id) {
-	return "regex" + id;
-};
-
-var nextID = 0;
-
-// Returns an object containing a regex, its corresponding
-// automaton and an ID.
-function buildExprObject(regex) {
-	return {
-		id: nextID++,
-		regex: (regex) ? regex : new Regex(""),
-		automaton: (regex) ? regex.toFiniteAutomaton() : null
-	};
-}
 
 window.Workspace = function() {
 	var self = this;
@@ -71,12 +27,21 @@ window.Workspace = function() {
 
 	// Sets the current CFG of this workspace.
 	this.setCFG = function(cfg) {
-		var instance = new CFG(cfg);
-		if (!instance.isValid()) {
+		var instance;
+		try {
+			instance = new CFG(cfg);
+		} catch (e) {
 			self.error(ERROR_INVALID_GRAMMAR);
 			return false;
 		}
 		self.currentCFG = instance;
+
+		var first = instance.first();
+		for (var name in first) {
+			if (first.hasOwnProperty(name)) {
+				console.log(name + ": " + first[name].join(", "));
+			}
+		}
 		return true;
 	};
 
