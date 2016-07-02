@@ -147,7 +147,8 @@ window.CFG = function(cfgStr) {
 				populateFirst(container, production[j]);
 				var hasEpsilon = false;
 				var first = container[production[j]];
-				for (var k = 0; k < first.length; k++) {
+				var length = first.length;
+				for (var k = 0; k < length; k++) {
 					if (first[k] == EPSILON) {
 						hasEpsilon = true;
 					} else {
