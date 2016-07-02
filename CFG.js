@@ -52,6 +52,7 @@ window.CFG = function(cfgStr) {
 				}
 			}
 		}
+		return true;
 	};
 
 	// Receives the informations about a production and adds it
@@ -192,7 +193,9 @@ window.CFG = function(cfgStr) {
 
 	var lines = cfgStr.split("\n");
 	for (var i = 0; i < lines.length; i++) {
-		self.addProductions(lines[i]);
+		if (!self.addProductions(lines[i])) {
+			throw Utilities.ERROR_INVALID_GRAMMAR;
+		}
 	}
 };
 

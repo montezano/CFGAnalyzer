@@ -91,7 +91,7 @@ window.Workspace = function() {
 		try {
 			instance = new CFG(cfg);
 		} catch (e) {
-			self.error(ERROR_INVALID_GRAMMAR);
+			self.error(e);
 			return false;
 		}
 		self.currentCFG = instance;
