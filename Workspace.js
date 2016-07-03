@@ -54,6 +54,7 @@ window.Workspace = function() {
 		var cfg = self.currentCFG;
 		var nonTerminals = cfg.getNonTerminals();
 		var first = cfg.first();
+		var follow = cfg.follow();
 		var recursionInfo = cfg.getRecursionInformation();
 		var factorizationInfo = cfg.getFactorizationInformation();
 		var recursiveNT = recursionInfo.recursiveNonTerminals;
@@ -67,7 +68,8 @@ window.Workspace = function() {
 			//row.appendChild(genCell(recursiveNT.includes(name) ? "Yes" : "No"));
 			//row.appendChild(genCell(nonFactoredNT.includes(name) ? "No" : "Yes"));
 			row.appendChild(genCell(first[name].join(", ")));
-			row.appendChild(genCell(""));
+			// row.appendChild(genCell(""));			
+			row.appendChild(genCell(follow[name].join(", ")));
 			table.appendChild(row);
 		}
 		container().appendChild(table);

@@ -8,6 +8,7 @@ window.Utilities = {
 	nonTerminals: [],
 
 	EPSILON: "&",
+	DOLLAR: "$",
 
 	// Error messages
 	ERROR_INVALID_GRAMMAR: "Invalid grammar",

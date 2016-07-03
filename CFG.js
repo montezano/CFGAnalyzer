@@ -1,12 +1,14 @@
 (function() {
 "use strict";
 
+var DOLLAR = Utilities.DOLLAR;
 var EPSILON = Utilities.EPSILON;
 
 window.CFG = function(cfgStr) {
 	var self = this;
 	this.productions = {};
-	this.initialProduction = null;
+	this.initialSymbol = null;
+	this.firstData = null;
 
 	/*
 	Receives a string representation of a group of productions
@@ -18,7 +20,7 @@ window.CFG = function(cfgStr) {
 			S: [["a", "S", "b"], ["id"], ["&"]]
 		}
 	*/
-	var stringToProduction = function(str) {
+	function stringToProduction(str) {
 		var map = {};
 		var explodedStr = str.split(' ');
 		var dividedStr = explodedStr.split('->');
@@ -28,7 +30,7 @@ window.CFG = function(cfgStr) {
 		return map;
 	};
 
-	var productionIteration = function(callback) {
+	function productionIteration(callback) {
 		for (var name in self.productions) {
 			if (self.productions.hasOwnProperty(name)) {
 				for (var i = 0; i < self.productions[name].length; i++) {
@@ -62,6 +64,9 @@ window.CFG = function(cfgStr) {
 			self.productions[name] = [];
 		}
 		self.productions[name].push(symbolSequence);
+		if (!self.initialSymbol) {
+			self.initialSymbol = name;
+		}
 	};
 
 	// Receives the informations about a production and removes it
@@ -169,6 +174,67 @@ window.CFG = function(cfgStr) {
 		}
 	}
 
+	function compositeFirst(symbolSequence) {
+		var result = [];
+		if (symbolSequence.length == 0
+			|| (symbolSequence.length == 1 && symbolSequence[0] == EPSILON)) {
+			result.push(EPSILON);
+			return result;
+		}
+
+		var shouldPushEpsilon = true;
+		for (var i = 0; i < symbolSequence.length; i++) {
+			var symbol = symbolSequence[i];
+			if (Utilities.isTerminal(symbol)) {
+				result.push(symbol);
+				shouldPushEpsilon = false;
+				break;
+			}
+
+			var first = self.firstData[symbol];
+			var hasEpsilon = false;
+			for (var j = 0; j < first.length; j++) {
+				if (first[j] == EPSILON) {
+					hasEpsilon = true;
+				} else {
+					result.push(first[j]);
+				}
+			}
+
+			if (!hasEpsilon) {
+				shouldPushEpsilon = false;
+				break;
+			}
+		}
+
+		Utilities.removeDuplicates(result);
+		if (shouldPushEpsilon) {
+			result.push(EPSILON);
+		}
+		return result;
+	}
+
+	function populateFollow(container, nonTerminal, production) {
+		for (var i = 0; i < production.length; i++) {
+			var symbol = production[i];
+			if (Utilities.isNonTerminal(symbol)) {
+				var remaining = production.slice(i + 1);
+				var first = compositeFirst(remaining);
+				var hasEpsilon = false;
+				for (var j = 0; j < first.length; j++) {
+					if (first[j] == EPSILON) {
+						hasEpsilon = true;
+					} else {
+						container[symbol].push(first[j]);
+					}
+				}
+				if (hasEpsilon) {
+					container[symbol] = container[symbol].concat(container[nonTerminal]);
+				}
+			}
+		}
+	}
+
 	// Returns a map associating each non-terminal of this grammar
 	// with its corresponding first array.
 	this.first = function() {
@@ -187,8 +253,29 @@ window.CFG = function(cfgStr) {
 	// Returns a map associating each non-terminal of this grammar
 	// with its corresponding follow array.
 	this.follow = function() {
-		// TODO
-		return {};
+		var result = {};
+		var nonTerminals = self.getNonTerminals();
+		for (var i = 0; i < nonTerminals.length; i++) {
+			result[nonTerminals[i]] = [];
+			if (self.initialSymbol == nonTerminals[i]) {
+				result[nonTerminals[i]].push(DOLLAR);
+			}
+		}
+
+		self.firstData = self.first();
+		var prevFollow = "", currFollow = "{}";
+		while (prevFollow != currFollow) {
+			prevFollow = currFollow;
+			productionIteration(function(name, production) {
+				populateFollow(result, name, production);
+			});
+
+			for (var i = 0; i < nonTerminals.length; i++) {
+				Utilities.removeDuplicates(result[nonTerminals[i]]);
+			}
+			currFollow = JSON.stringify(result);
+		}
+		return result;
 	};
 
 	var lines = cfgStr.split("\n");
