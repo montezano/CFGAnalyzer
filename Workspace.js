@@ -68,7 +68,6 @@ window.Workspace = function() {
 			//row.appendChild(genCell(recursiveNT.includes(name) ? "Yes" : "No"));
 			//row.appendChild(genCell(nonFactoredNT.includes(name) ? "No" : "Yes"));
 			row.appendChild(genCell(first[name].join(", ")));
-			// row.appendChild(genCell(""));			
 			row.appendChild(genCell(follow[name].join(", ")));
 			table.appendChild(row);
 		}
@@ -105,20 +104,13 @@ window.Workspace = function() {
 	// Returns a string representation of this workspace, which can be
 	// saved to a text file and later recovered via Workspace.load().
 	this.toString = function() {
-		return JSON.stringify(self.currentCFG);
+		return self.currentCFG.string;
 	};
 
 
-	// Receives the content of a file and adds the expressions it contains.
+	// Receives the content of a file and adds the grammar it contains.
 	this.load = function(fileContent) {
-		var cfg;
-		try {
-			cfg = JSON.parse(fileContent);
-		} catch (e) {
-			alert("Invalid file");
-			return;
-		}
-		self.setCFG(cfg);
+		self.setCFG(fileContent);
 	};
 };
 

@@ -6,6 +6,7 @@ var EPSILON = Utilities.EPSILON;
 
 window.CFG = function(cfgStr) {
 	var self = this;
+	this.string = cfgStr;
 	this.productions = {};
 	this.initialSymbol = null;
 	this.firstData = null;
@@ -30,6 +31,9 @@ window.CFG = function(cfgStr) {
 		return map;
 	};
 
+	// An utility function used to iterate over all productions of this CFG,
+	// executing a callback function on each one providing their name and list
+	// of produced symbols.
 	function productionIteration(callback) {
 		for (var name in self.productions) {
 			if (self.productions.hasOwnProperty(name)) {
@@ -81,10 +85,12 @@ window.CFG = function(cfgStr) {
 		}
 	};
 
+	// Returns a list containing all non-terminals of this CFG.
 	this.getNonTerminals = function() {
 		return Object.keys(self.productions);
 	};
 
+	// Returns a list containing all terminals of this CFG.
 	this.getTerminals = function() {
 		var result = [];
 		productionIteration(function(name, production) {
@@ -128,6 +134,23 @@ window.CFG = function(cfgStr) {
 		};
 	};
 
+	// Pushes all non-epsilon symbols of a list to another list and returns
+	// true if an epsilon has been found, false otherwise.
+	function pushNonEpsilons(origin, destination) {
+		var hasEpsilon = false;
+		var length = origin.length;
+		for (var i = 0; i < length; i++) {
+			if (origin[i] == EPSILON) {
+				hasEpsilon = true;
+			} else {
+				destination.push(origin[i]);
+			}
+		}
+		return hasEpsilon;
+	}
+
+	// Populates a map with the first set of a given non-terminal and all
+	// other non-terminals it depends on.
 	function populateFirst(container, nonTerminal) {
 		if (!container.hasOwnProperty(nonTerminal)) {
 			container[nonTerminal] = [];
@@ -151,17 +174,8 @@ window.CFG = function(cfgStr) {
 				}
 
 				populateFirst(container, production[j]);
-				var hasEpsilon = false;
 				var first = container[production[j]];
-				var length = first.length;
-				for (var k = 0; k < length; k++) {
-					if (first[k] == EPSILON) {
-						hasEpsilon = true;
-					} else {
-						container[nonTerminal].push(first[k]);
-					}
-				}
-
+				var hasEpsilon = pushNonEpsilons(first, container[nonTerminal]);
 				if (!hasEpsilon) {
 					break;
 				}
@@ -174,6 +188,8 @@ window.CFG = function(cfgStr) {
 		}
 	}
 
+	// Returns the first set of a sequence of symbols, given that the first
+	// set of all non-terminals are available in self.firstData.
 	function compositeFirst(symbolSequence) {
 		var result = [];
 		if (symbolSequence.length == 0
@@ -192,15 +208,7 @@ window.CFG = function(cfgStr) {
 			}
 
 			var first = self.firstData[symbol];
-			var hasEpsilon = false;
-			for (var j = 0; j < first.length; j++) {
-				if (first[j] == EPSILON) {
-					hasEpsilon = true;
-				} else {
-					result.push(first[j]);
-				}
-			}
-
+			var hasEpsilon = pushNonEpsilons(first, result);
 			if (!hasEpsilon) {
 				shouldPushEpsilon = false;
 				break;
@@ -214,20 +222,15 @@ window.CFG = function(cfgStr) {
 		return result;
 	}
 
+	// Populates a map with the preliminary follow set of non-terminals
+	// used in a given production.
 	function populateFollow(container, nonTerminal, production) {
 		for (var i = 0; i < production.length; i++) {
 			var symbol = production[i];
 			if (Utilities.isNonTerminal(symbol)) {
 				var remaining = production.slice(i + 1);
 				var first = compositeFirst(remaining);
-				var hasEpsilon = false;
-				for (var j = 0; j < first.length; j++) {
-					if (first[j] == EPSILON) {
-						hasEpsilon = true;
-					} else {
-						container[symbol].push(first[j]);
-					}
-				}
+				var hasEpsilon = pushNonEpsilons(first, container[symbol]);
 				if (hasEpsilon) {
 					container[symbol] = container[symbol].concat(container[nonTerminal]);
 				}
