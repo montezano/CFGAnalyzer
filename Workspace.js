@@ -33,17 +33,19 @@ window.Workspace = function() {
 	// Analyzes the current CFG of this workspace, printing informations such
 	// as recursion data, factoring data, first, follow and parsing table.
 	function printAnalysisTable() {
+		var fields = ["Non-Terminal", "Recursive", "Factored", "First",
+					  "Follow", "Derives &", "First ∩ Follow"];
+
 		var table = node("table");
 		var headerRow = node("tr");
 		var header = node("th");
 		header.innerHTML = "Analysis";
-		header.colSpan = 5;
+		header.colSpan = fields.length;
 		headerRow.appendChild(header);
 		table.appendChild(headerRow);
 
 		var row, cell;
 		row = node("tr");
-		var fields = ["Non-Terminal", "Recursive", "Factored", "First", "Follow"];
 		for (var i = 0; i < fields.length; i++) {
 			cell = node("th");
 			cell.innerHTML = fields[i];
@@ -51,16 +53,21 @@ window.Workspace = function() {
 		}
 		table.appendChild(row);
 
+		var EPSILON = Utilities.EPSILON;
 		var cfg = self.currentCFG;
 		var nonTerminals = cfg.getNonTerminals();
-		var first = cfg.first();
-		var follow = cfg.follow();
 		var recursionInfo = cfg.getRecursionInformation();
 		var factorizationInfo = cfg.getFactorizationInformation();
 		var recursiveNT = recursionInfo.recursiveNonTerminals;
 		var nonFactoredNT = factorizationInfo.nonFactoredNonTerminals;
+		var first = cfg.first();
+		var follow = cfg.follow();
+		var firstFollowConflicts = [];
 		for (var i = 0; i < nonTerminals.length; i++) {
 			var name = nonTerminals[i];
+			var intFirstFollow = Utilities.intersection(first[name], follow[name]);
+			var derivesEpsilon = first[name].includes(EPSILON);
+
 			row = node("tr");
 			row.appendChild(genCell(name));
 			row.appendChild(genCell(""));
@@ -69,6 +76,28 @@ window.Workspace = function() {
 			//row.appendChild(genCell(nonFactoredNT.includes(name) ? "No" : "Yes"));
 			row.appendChild(genCell(first[name].join(", ")));
 			row.appendChild(genCell(follow[name].join(", ")));
+			row.appendChild(genCell(derivesEpsilon ? "Yes" : "No"));
+			row.appendChild(genCell(intFirstFollow.join(", ")));
+			table.appendChild(row);
+
+			if (derivesEpsilon && intFirstFollow.length > 0) {
+				firstFollowConflicts.push(name);
+			}
+
+			// TODO: add other anti-LL1 conditions once the recursion and
+			// factoring test are implemented
+			var isAntiLL1 = (derivesEpsilon && intFirstFollow.length > 0);
+			if (isAntiLL1) {
+				row.classList.add("antiLL1");
+			}
+		}
+
+		for (var i = 0; i < firstFollowConflicts.length; i++) {
+			var name = firstFollowConflicts[i];
+			row = node("tr");
+			cell = genCell(name + " has a first/follow conflict.");
+			cell.colSpan = fields.length;
+			row.appendChild(cell);
 			table.appendChild(row);
 		}
 		container().appendChild(table);
@@ -88,6 +117,7 @@ window.Workspace = function() {
 
 	// Sets the current CFG of this workspace.
 	this.setCFG = function(cfg) {
+		cfg = cfg.replace(/</g, '&lt;').replace(/([^-])>/g, '$1&gt;');
 		var instance;
 		try {
 			instance = new CFG(cfg);
@@ -96,7 +126,7 @@ window.Workspace = function() {
 			return false;
 		}
 		self.currentCFG = instance;
-		cfgContainer().innerHTML = cfg;
+		cfgContainer().innerHTML = cfg.replace(/\n/g, "<br>");
 		updateUI();
 		return true;
 	};

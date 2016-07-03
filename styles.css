@@ -37,6 +37,10 @@ body {
 	width: 100%;
 }
 
+#cfg_add {
+	text-align: center;
+}
+
 #cfg {
 	height: 200px;
 	width: 100%;
@@ -50,7 +54,12 @@ body {
 #current_cfg {
 	font-size: 22px;
 	margin-top: 5px;
-	white-space: pre;
+	word-wrap: break-word;
+}
+
+#main tr.antiLL1 td:first-child {
+	color: red;
+	font-weight: bold;
 }
 
 #main th {
