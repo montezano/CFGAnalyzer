@@ -308,6 +308,7 @@ window.CFG = function(cfgStr) {
 
 	var lines = cfgStr.split("\n");
 	for (var i = 0; i < lines.length; i++) {
+		if (lines[i] == "") continue;
 		if (!self.addProductions(lines[i])) {
 			throw Utilities.ERROR_INVALID_GRAMMAR;
 		}
