@@ -27,7 +27,8 @@ var cfgInvalidTestCases = [
 	"CH4 + 2O2 -> CO2 + 2H2O",
 	"I am not a grammar",
 	"JS is cool",
-	"Writing invalid test cases is fun"
+	"Writing invalid test cases is fun",
+	"-> a S c"
 ];
 
 window.Test = {
