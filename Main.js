@@ -31,7 +31,7 @@ if (!Array.prototype.split) {
 		if (lastIndex != 0) {
 			outArray.push(this.slice(lastIndex, i));
 		} else {
-			return this;
+			return [this];
 		}
 
 		return outArray;
