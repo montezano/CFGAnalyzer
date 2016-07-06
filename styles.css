@@ -44,6 +44,7 @@ body {
 #cfg {
 	height: 200px;
 	width: 100%;
+	margin-bottom: 5px;
 }
 
 #button_bar table {
@@ -52,7 +53,8 @@ body {
 }
 
 #current_cfg {
-	font-size: 22px;
+	font-size: 20px;
+	font-family: monospace;;
 	margin-top: 5px;
 	word-wrap: break-word;
 }
