@@ -6,7 +6,6 @@ var EPSILON = Utilities.EPSILON;
 
 window.CFG = function(cfgStr) {
 	var self = this;
-	this.string = cfgStr;
 	this.productions = {};
 	this.initialSymbol = null;
 	this.firstData = null;
@@ -308,11 +307,18 @@ window.CFG = function(cfgStr) {
 
 	var lines = cfgStr.split("\n");
 	for (var i = 0; i < lines.length; i++) {
-		if (lines[i] == "") continue;
+		lines[i] = lines[i].trim();
+		if (lines[i] == "") {
+			lines.splice(i, 1);
+			i--;
+			continue;
+		}
+
 		if (!self.addProductions(lines[i])) {
 			throw Utilities.ERROR_INVALID_GRAMMAR;
 		}
 	}
+	this.string = lines.join("\n");
 };
 
 })();
