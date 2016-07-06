@@ -24,12 +24,42 @@ window.CFG = function(cfgStr) {
 	function stringToProduction(str) {
 		var map = {};
 		var explodedStr = str.split(' ');
+
+		if (!explodedStr.includes("->")) return null;
+
 		var dividedStr = explodedStr.split('->');
 		var initialSymbol = dividedStr[0][0];
+
+		if (!validateNonTerminal(initialSymbol)) return null;
+
 		var productions = dividedStr[1].split('|');
+
+		for (var i = 0; i < productions.length; i++) {
+			if (productions[i].length < 1) {
+				return null;
+			} else {
+				// There's at least one production
+				for (var k = 0; k < productions[i].length; k++) {
+					if (productions[i][k] != productions[i][k].toLowerCase()) {
+						if (!validateNonTerminal(productions[i][k])) {
+							return null;
+						}
+					}
+				}
+			}
+		}
+
 		map[initialSymbol] = productions;
 		return map;
 	};
+
+	function validateNonTerminal(symbol) {
+		if (symbol[0] < 'A' || symbol[0] > 'Z') return false;
+		for (var i = 1; i < symbol.length; i++) {
+			if (symbol[i] < '0' || symbol[i] > '9') return false;
+		}
+		return true;
+	}
 
 	// An utility function used to iterate over all productions of this CFG,
 	// executing a callback function on each one providing their name and list
