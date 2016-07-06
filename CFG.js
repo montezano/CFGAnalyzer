@@ -273,7 +273,7 @@ window.CFG = function(cfgStr) {
 	this.first = function() {
 		var result = {};
 		var nonTerminals = self.getNonTerminals();
-		for (var i = 0; i < nonTerminals.length; i++) {			
+		for (var i = 0; i < nonTerminals.length; i++) {
 			populateFirst(result, nonTerminals[i]);
 		}
 
