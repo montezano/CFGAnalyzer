@@ -135,33 +135,117 @@ window.CFG = function(cfgStr) {
 		return result;
 	};
 
+	// Returns a map associating each non-terminal of this grammar with a list
+	// of all non-terminals that it reaches as the first symbol of its productions.
+	function getLeftRangeTable() {
+		var rangeTable = {};
+		productionIteration(function(name, production) {
+			if (!rangeTable.hasOwnProperty(name)) {
+				rangeTable[name] = [];
+			}
+
+			if (Utilities.isNonTerminal(production[0])) {
+				rangeTable[name].push(production[0]);
+			}
+		});
+
+		var stable = false;
+		while (!stable) {
+			stable = true;
+			for (var name in rangeTable) {
+				if (!rangeTable.hasOwnProperty(name)) continue;
+				var length = rangeTable[name].length;
+				for (var i = 0; i < length; i++) {
+					var nonTerminal = rangeTable[name][i];
+					rangeTable[name] = rangeTable[name].concat(rangeTable[nonTerminal]);
+				}
+				Utilities.removeDuplicates(rangeTable[name]);
+				if (rangeTable[name].length != length) {
+					stable = false;
+				}
+			}
+		}
+		return rangeTable;
+	}
+
 	/*
 	Returns an object containing:
 	- hasLeftRecursion: true if this grammar has a left recursion, false otherwise;
-	- hasDirectRecursion: true if the left recursion is direct, false otherwise;
-	- recursiveNonTerminals: an array containing all recursive non-terminals.
+	- recursiveNonTerminals: a map associating each recursive non-terminal of
+	  this grammar with the type of recursion it has (true for direct, false
+	  for indirect)
 	*/
 	this.getRecursionInformation = function() {
-		return {
+		var DIRECT = true;
+		var INDIRECT = false;
+		var result = {
 			hasLeftRecursion: false,
-			hasDirectRecursion: false,
-			recursiveNonTerminals: []
+			recursiveNonTerminals: {}
 		};
+		productionIteration(function(name, production) {
+			if (production[0] == name) {
+				result.hasLeftRecursion = true;
+				result.recursiveNonTerminals[name] = DIRECT;
+			}
+		});
+
+		var rangeTable = getLeftRangeTable();
+		for (var name in rangeTable) {
+			if (rangeTable.hasOwnProperty(name)
+				&& rangeTable[name].includes(name)
+				&& !result.recursiveNonTerminals.hasOwnProperty(name)) {
+				result.hasLeftRecursion = true;
+				result.recursiveNonTerminals[name] = INDIRECT;
+			}
+		}
+		return result;
 	};
 
 	/*
 	Returns an object containing:
 	- isFactored: true if this grammar is factored, false otherwise;
-	- hasDirectNonFactorization: true if this grammar has a direct
-	  non-factorization, false otherwise;
-	- nonFactoredNonTerminals: an array containing all non-factored non-terminals.
+	- nonFactoredNonTerminals: a map associating each non-factored non-terminal
+	  of this grammar with the type of non-factorization it has (true for direct,
+	  false for indirect)
 	*/
 	this.getFactorizationInformation = function() {
-		return {
+		var DIRECT = true;
+		var INDIRECT = false;
+		var result = {
 			isFactored: true,
-			hasDirectNonFactorization: false,
-			nonFactoredNonTerminals: []
+			nonFactoredNonTerminals: {}
 		};
+		var firstTable = {};
+		var directFirstTable = {};
+		self.firstData = self.first();
+		productionIteration(function(name, production) {
+			if (!firstTable.hasOwnProperty(name)) {
+				firstTable[name] = {};
+			}
+
+			if (!directFirstTable.hasOwnProperty(name)) {
+				directFirstTable[name] = {};
+			}
+
+			if (directFirstTable[name].hasOwnProperty(production[0])) {
+				result.isFactored = false;
+				result.nonFactoredNonTerminals[name] = DIRECT;
+			} else {
+				directFirstTable[name][production[0]] = 1;
+			}
+
+			var first = compositeFirst(production);
+			for (var i = 0; i < first.length; i++) {
+				if (!result.nonFactoredNonTerminals.hasOwnProperty(name)
+					&& firstTable[name].hasOwnProperty(first[i])) {
+					result.isFactored = false;
+					result.nonFactoredNonTerminals[name] = INDIRECT;
+					break;
+				}
+				firstTable[name][first[i]] = 1;
+			}
+		});
+		return result;
 	};
 
 	// Pushes all non-epsilon symbols of a list to another list and returns

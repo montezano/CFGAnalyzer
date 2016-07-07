@@ -7,12 +7,26 @@ window.Utilities = {
 	// A list of valid non-terminal terms (it's filled in the loop below)
 	nonTerminals: [],
 
+	// Special symbols
 	EPSILON: "&",
 	DOLLAR: "$",
 
 	// Error messages
 	ERROR_INVALID_GRAMMAR: "Invalid grammar",
 	ERROR_INVALID_PRODUCTION: "Invalid production",
+
+	// Labels
+	RECURSION_TYPES: {
+		0: "None",
+		1: "<span class='notOK'>Direct</span>",
+		2: "<span class='notOK'>Indirect</span>"
+	},
+
+	FACTORIZATION_TYPES: {
+		0: "Factored",
+		1: "<span class='notOK'>Direct</span>",
+		2: "<span class='notOK'>Indirect</span>"
+	},
 
 	isNonTerminal: function(symbol) {
 		return Utilities.nonTerminals.includes(symbol[0]) && !isNaN(symbol.slice(1));

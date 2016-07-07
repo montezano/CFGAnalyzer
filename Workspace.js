@@ -33,7 +33,7 @@ window.Workspace = function() {
 	// Analyzes the current CFG of this workspace, printing informations such
 	// as recursion data, factoring data, first, follow and parsing table.
 	function printAnalysisTable() {
-		var fields = ["Non-Terminal", "Recursive", "Factored", "First",
+		var fields = ["Non-Terminal", "Recursion", "Factorization", "First",
 					  "Follow", "Derives &", "First ∩ Follow"];
 
 		var table = node("table");
@@ -54,26 +54,35 @@ window.Workspace = function() {
 		table.appendChild(row);
 
 		var EPSILON = Utilities.EPSILON;
+		var RECURSION_TYPES = Utilities.RECURSION_TYPES;
+		var FACTORIZATION_TYPES = Utilities.FACTORIZATION_TYPES;
 		var cfg = self.currentCFG;
 		var nonTerminals = cfg.getNonTerminals();
 		var recursionInfo = cfg.getRecursionInformation();
 		var factorizationInfo = cfg.getFactorizationInformation();
 		var recursiveNT = recursionInfo.recursiveNonTerminals;
 		var nonFactoredNT = factorizationInfo.nonFactoredNonTerminals;
+		console.log(factorizationInfo);
 		var first = cfg.first();
 		var follow = cfg.follow();
 		var firstFollowConflicts = [];
 		for (var i = 0; i < nonTerminals.length; i++) {
 			var name = nonTerminals[i];
+			var recursionType = (recursiveNT.hasOwnProperty(name)) ?
+								(recursiveNT[name] ? 1 : 2) :
+								0;
+			var factorizationType = (nonFactoredNT.hasOwnProperty(name)) ?
+									(nonFactoredNT[name] ? 1 : 2) :
+									0;
 			var intFirstFollow = Utilities.intersection(first[name], follow[name]);
 			var derivesEpsilon = first[name].includes(EPSILON);
 
 			row = node("tr");
 			row.appendChild(genCell(name));
-			row.appendChild(genCell(""));
-			row.appendChild(genCell(""));
-			//row.appendChild(genCell(recursiveNT.includes(name) ? "Yes" : "No"));
-			//row.appendChild(genCell(nonFactoredNT.includes(name) ? "No" : "Yes"));
+			//row.appendChild(genCell(""));
+			//row.appendChild(genCell(""));
+			row.appendChild(genCell(RECURSION_TYPES[recursionType]));
+			row.appendChild(genCell(FACTORIZATION_TYPES[factorizationType]));
 			row.appendChild(genCell(first[name].join(", ")));
 			row.appendChild(genCell(follow[name].join(", ")));
 			row.appendChild(genCell(derivesEpsilon ? "Yes" : "No"));
