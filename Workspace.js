@@ -135,7 +135,7 @@ window.Workspace = function() {
 			return false;
 		}
 		self.currentCFG = instance;
-		cfgContainer().innerHTML = cfg.replace(/\n/g, "<br>");
+		cfgContainer().innerHTML = instance.string.replace(/\n/g, "<br>");
 		updateUI();
 		return true;
 	};

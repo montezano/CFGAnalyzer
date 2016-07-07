@@ -38,6 +38,18 @@ if (!Array.prototype.split) {
 	};
 }
 
+	if (!Array.prototype.splitFirst) {
+		Array.prototype.splitFirst = function(separator) {
+			var outArray = [];
+
+			var separatorIndex = this.indexOf(separator);
+			outArray.push(this.slice(0, separatorIndex));
+			outArray.push(this.slice(separatorIndex+1));
+
+			return outArray;
+		};
+	}
+
 window.workspace = new Workspace();
 var onFileOpen = function(content) {
 	workspace.load(content);

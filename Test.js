@@ -9,7 +9,8 @@ var cfgValidTestCases = [
 	"S123 -> b",
 	"S736473843463743764734 -> &",
 	"S -> I am a grammar like it or not",
-	"C -> if expr then C | if expr then C else C | cmd ; C | cmd"
+	"C -> if expr then C | if expr then C else C | cmd ; C | cmd",
+	"S -> a -> b"
 ];
 
 var cfgInvalidTestCases = [
@@ -28,7 +29,10 @@ var cfgInvalidTestCases = [
 	"I am not a grammar",
 	"JS is cool",
 	"Writing invalid test cases is fun",
-	"-> a S c"
+	"-> a S c",
+	"S ->",
+	"S -> ",
+	"S - -> a"
 ];
 
 window.Test = {

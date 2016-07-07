@@ -6,7 +6,6 @@ var EPSILON = Utilities.EPSILON;
 
 window.CFG = function(cfgStr) {
 	var self = this;
-	this.string = cfgStr;
 	this.productions = {};
 	this.initialSymbol = null;
 	this.firstData = null;
@@ -27,21 +26,24 @@ window.CFG = function(cfgStr) {
 
 		if (!explodedStr.includes("->")) return null;
 
-		var dividedStr = explodedStr.split('->');
+		var dividedStr = explodedStr.splitFirst('->');
+		if (dividedStr.length != 2) return null;
+
+		if (dividedStr[0].length != 1) return null
 		var initialSymbol = dividedStr[0][0];
 
-		if (!validateNonTerminal(initialSymbol)) return null;
+		if (!Utilities.isNonTerminal(initialSymbol)) return null;
 
 		var productions = dividedStr[1].split('|');
 
 		for (var i = 0; i < productions.length; i++) {
-			if (productions[i].length < 1) {
+			if (productions[i].length < 1 || productions[i] == "") {
 				return null;
 			} else {
 				// There's at least one production
 				for (var k = 0; k < productions[i].length; k++) {
 					if (productions[i][k] != productions[i][k].toLowerCase()) {
-						if (!validateNonTerminal(productions[i][k])) {
+						if (!Utilities.isNonTerminal(productions[i][k])) {
 							return null;
 						}
 					}
@@ -52,14 +54,6 @@ window.CFG = function(cfgStr) {
 		map[initialSymbol] = productions;
 		return map;
 	};
-
-	function validateNonTerminal(symbol) {
-		if (symbol[0] < 'A' || symbol[0] > 'Z') return false;
-		for (var i = 1; i < symbol.length; i++) {
-			if (symbol[i] < '0' || symbol[i] > '9') return false;
-		}
-		return true;
-	}
 
 	// An utility function used to iterate over all productions of this CFG,
 	// executing a callback function on each one providing their name and list
@@ -397,10 +391,18 @@ window.CFG = function(cfgStr) {
 
 	var lines = cfgStr.split("\n");
 	for (var i = 0; i < lines.length; i++) {
+		lines[i] = lines[i].trim();
+		if (lines[i] == "") {
+			lines.splice(i, 1);
+			i--;
+			continue;
+		}
+
 		if (!self.addProductions(lines[i])) {
 			throw Utilities.ERROR_INVALID_GRAMMAR;
 		}
 	}
+	this.string = lines.join("\n");
 };
 
 })();
