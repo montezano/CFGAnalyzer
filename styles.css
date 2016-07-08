@@ -77,3 +77,17 @@ body {
 span.notOK {
 	color: red;
 }
+
+#main table.padded th, #main table.padded td {
+	padding: 5px 10px;
+}
+
+#main table.inline {
+	display: inline-table;
+	vertical-align: top;
+}
+
+tr.highlight td:first-child {
+	color: red;
+	text-decoration: underline;
+}

@@ -14,6 +14,14 @@ var cfgContainer = function() {
 	return $("#current_cfg");
 };
 
+var pointers = function() {
+	return $(".productionPointer");
+};
+
+var productionContainer = function(index) {
+	return $("#prod" + index);
+};
+
 var node = function(tag) {
 	return document.createElement(tag);
 };
@@ -27,35 +35,6 @@ var genCell = function(content, isLabel) {
 window.Workspace = function() {
 	var self = this;
 	this.currentCFG = null;
-
-	function printParsingTable() {
-		var table = node("table");
-
-		var TRANSITION_SYMBOL = Utilities.TRANSITION_SYMBOL;
-		var DOLLAR = Utilities.DOLLAR;
-		var cfg = self.currentCFG;
-		var nonTerminals = cfg.getNonTerminals();
-		var terminals = cfg.getTerminals().concat([DOLLAR]);
-		var row = node("tr");
-		row.appendChild(genCell("", true));
-		for (var i = 0; i < terminals.length; i++) {
-			row.appendChild(genCell(terminals[i], true));
-		}
-		table.appendChild(row);
-
-		var parsingTable = cfg.parsingTable();
-		for (var i = 0; i < nonTerminals.length; i++) {
-			row = node("tr");
-			row.appendChild(genCell(nonTerminals[i], true));
-			for (var j = 0; j < terminals.length; j++) {
-				var content = parsingTable[nonTerminals[i]][terminals[j]];
-				row.appendChild(genCell(content ? nonTerminals[i] + " " + TRANSITION_SYMBOL + " " + content.join(" ") : "-"));
-			}
-			table.appendChild(row);
-		}
-
-		container().appendChild(table);
-	}
 
 	// Analyzes the current CFG of this workspace, printing informations such
 	// as recursion data, factoring data, first, follow and parsing table.
@@ -145,11 +124,97 @@ window.Workspace = function() {
 		}
 	}
 
+	// Prints the parsing table of the current CFG of this workspace.
+	function printParsingTable() {
+		var DOLLAR = Utilities.DOLLAR;
+		var cfg = self.currentCFG;
+		var nonTerminals = cfg.getNonTerminals();
+		var terminals = cfg.getTerminals().concat([DOLLAR]);
+		try {
+			var parsingTable = cfg.parsingTable();
+		} catch (e) {
+			return;
+		}
+
+		var table = node("table");
+		table.classList.add("padded");
+		table.classList.add("inline");
+		var row = node("tr");
+		var cell = genCell("Parsing Table", 1);
+		cell.colSpan = terminals.length + 1;
+		row.appendChild(cell);
+		table.appendChild(row);
+
+		var row = node("tr");
+		row.appendChild(genCell("", true));
+		for (var i = 0; i < terminals.length; i++) {
+			row.appendChild(genCell(terminals[i], true));
+		}
+		table.appendChild(row);
+
+		for (var i = 0; i < nonTerminals.length; i++) {
+			row = node("tr");
+			row.appendChild(genCell(nonTerminals[i], true));
+			for (var j = 0; j < terminals.length; j++) {
+				var content = parsingTable[nonTerminals[i]][terminals[j]];
+				cell = genCell("-");
+				if (content !== null) {
+					cell.innerHTML = content;
+					cell.classList.add("productionPointer");
+				}
+				row.appendChild(cell);
+			}
+			table.appendChild(row);
+		}
+		container().appendChild(table);
+
+		printProductionIndexes();
+	}
+
+	function printProductionIndexes() {
+		var cfg = self.currentCFG;
+		// var nonTerminals = cfg.getNonTerminals();
+		// var terminals = cfg.getTerminals().concat([DOLLAR]);
+		var productionList = cfg.productionList();
+
+		var table = node("table");
+		table.classList.add("padded");
+		table.classList.add("inline");
+		var row = node("tr");
+		var cell = genCell("Index Table", true);
+		cell.colSpan = 2;
+		row.appendChild(cell);
+		table.appendChild(row);
+		for (var i = 0; i < productionList.length; i++) {
+			var pair = productionList[i];
+			row = node("tr");
+			row.id = "prod" + i;
+			row.appendChild(genCell(pair[0] + " -> " + pair[1].join(" ")));
+			row.appendChild(genCell(i));
+			table.appendChild(row);
+		}
+		container().appendChild(table);
+	}
+
 	// Updates the UI, replacing all previous content with the informations
 	// about the current CFG.
 	function updateUI() {
 		container().innerHTML = "";
 		printAnalysisTable();
+		updateEvents();
+	}
+
+	function updateEvents() {
+		var pointerList = pointers();
+		for (var i = 0; i < pointerList.length; i++) {
+			var element = pointerList[i];
+			element.addEventListener("mouseover", function() {
+				productionContainer(this.innerHTML).classList.add("highlight");
+			});
+			element.addEventListener("mouseout", function() {
+				productionContainer(this.innerHTML).classList.remove("highlight");
+			});
+		}
 	}
 
 	// Shows an error to the user.

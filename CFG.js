@@ -403,6 +403,7 @@ window.CFG = function(cfgStr) {
 
 		self.firstData = self.first();
 		var follow = self.follow();
+		var productionList = self.productionList();
 		productionIteration(function(name, production) {
 			var first = compositeFirst(production);
 			for (var i = 0; i < first.length; i++) {
@@ -412,11 +413,20 @@ window.CFG = function(cfgStr) {
 					if (table[name][first[i]]) {
 						throw Utilities.ERROR_NOT_LL1;
 					}
-					table[name][first[i]] = production;
+					var pair = [name, production];
+					table[name][first[i]] = Utilities.indexOf(productionList, pair);
 				}
 			}
 		});
 		return table;
+	};
+
+	this.productionList = function() {
+		var result = [];
+		productionIteration(function(name, production) {
+			result.push([name, production]);
+		});
+		return result;
 	};
 
 	var lines = cfgStr.split("\n");
@@ -433,16 +443,20 @@ window.CFG = function(cfgStr) {
 		}
 	}
 
-	this.string = "";
-	for (var name in self.productions) {
-		if (!self.productions.hasOwnProperty(name)) continue;
-		var productions = [];
-		for (var i = 0; i < self.productions[name].length; i++) {
-			production.push(self.productions[name][i].join(" "));
-		}
-		this.string += name + " " + Utilities.TRANSITION_SYMBOL + " " + productions.join(" | ");
-		this.string += "\n";
+	if (lines.length == 0) {
+		throw Utilities.ERROR_INVALID_GRAMMAR;
 	}
+	this.string = lines.join("\n");
+	// this.string = "";
+	// for (var name in self.productions) {
+	// 	if (!self.productions.hasOwnProperty(name)) continue;
+	// 	var productions = [];
+	// 	for (var i = 0; i < self.productions[name].length; i++) {
+	// 		productions.push(self.productions[name][i].join(" "));
+	// 	}
+	// 	this.string += name + " " + Utilities.TRANSITION_SYMBOL + " ";
+	// 	this.string += productions.join(" | ") + "\n";
+	// }
 };
 
 })();
