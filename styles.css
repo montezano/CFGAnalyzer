@@ -44,7 +44,10 @@ body {
 #cfg {
 	height: 200px;
 	width: 100%;
-	margin-bottom: 5px;
+}
+
+input[type="button"] {
+	margin-top: 5px;
 }
 
 #button_bar table {

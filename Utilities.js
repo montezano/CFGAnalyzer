@@ -1,8 +1,6 @@
 (function(){
 "use strict";
 
-// TODO: remove all unnecessary stuff from this file
-
 window.Utilities = {
 	// A list of valid non-terminal terms (it's filled in the loop below)
 	nonTerminals: [],
@@ -11,6 +9,7 @@ window.Utilities = {
 	EPSILON: "&",
 	DOLLAR: "$",
 	TRANSITION_SYMBOL: "➞",
+	NO_TRANSITION: "—",
 
 	// Error messages
 	ERROR_INVALID_GRAMMAR: "Invalid grammar",
@@ -38,16 +37,6 @@ window.Utilities = {
 		return !Utilities.isNonTerminal(symbol) && symbol != Utilities.EPSILON;
 	},
 
-	// Generates a name for the (n+1)-th state of an automaton.
-	generateStateName: function(n) {
-		var name = String.fromCharCode(65 + (n % 26));
-		var numApostrophes = Math.floor(n / 26);
-		for (var i = 0; i < numApostrophes; i++) {
-			name += "'";
-		}
-		return name;
-	},
-
 	// Removes all duplicated elements of a numeric array.
 	removeDuplicates: function(array) {
 		array.sort();
@@ -57,17 +46,6 @@ window.Utilities = {
 				i--;
 			}
 		}
-	},
-
-	// Checks if two arrays are equal.
-	isSameArray: function(arr1, arr2) {
-		if (arr1.length != arr2.length) return false;
-		for (var i = 0; i < arr1.length; i++) {
-			if (arr1[i] != arr2[i]) {
-				return false;
-			}
-		}
-		return true;
 	},
 
 	// Returns the union of two arrays.
@@ -94,17 +72,6 @@ window.Utilities = {
 		for (var i = 0; i < arr1.length; i++) {
 			if (!arr2.includes(arr1[i])) {
 				result.push(arr1[i]);
-			}
-		}
-		return result;
-	},
-
-	// Returns the cartesian product of two arrays
-	cartesianProduct: function(arr1, arr2) {
-		var result = [];
-		for (var i = 0; i < arr1.length; i++) {
-			for (var j = 0; j < arr2.length; j++) {
-				result.push([arr1[i], arr2[j]]);
 			}
 		}
 		return result;

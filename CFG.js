@@ -421,6 +421,7 @@ window.CFG = function(cfgStr) {
 		return table;
 	};
 
+	// Returns a list of pairs corresponding to the productions of this grammar.
 	this.productionList = function() {
 		var result = [];
 		productionIteration(function(name, production) {
@@ -428,6 +429,11 @@ window.CFG = function(cfgStr) {
 		});
 		return result;
 	};
+
+	this.evaluate = function(input) {
+		alert("Not yet implemented");
+		console.log(input);
+	}
 
 	var lines = cfgStr.split("\n");
 	for (var i = 0; i < lines.length; i++) {

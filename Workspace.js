@@ -22,6 +22,14 @@ var productionContainer = function(index) {
 	return $("#prod" + index);
 };
 
+var simulatorInput = function() {
+	return $("#simulator_input");
+};
+
+var simulateButton = function() {
+	return $("#simulate_btn");
+};
+
 var node = function(tag) {
 	return document.createElement(tag);
 };
@@ -68,7 +76,6 @@ window.Workspace = function() {
 		var factorizationInfo = cfg.getFactorizationInformation();
 		var recursiveNT = recursionInfo.recursiveNonTerminals;
 		var nonFactoredNT = factorizationInfo.nonFactoredNonTerminals;
-		console.log(factorizationInfo);
 		var first = cfg.first();
 		var follow = cfg.follow();
 		var firstFollowConflicts = [];
@@ -86,8 +93,6 @@ window.Workspace = function() {
 
 			row = node("tr");
 			row.appendChild(genCell(name));
-			//row.appendChild(genCell(""));
-			//row.appendChild(genCell(""));
 			row.appendChild(genCell(RECURSION_TYPES[recursionType]));
 			row.appendChild(genCell(FACTORIZATION_TYPES[factorizationType]));
 			row.appendChild(genCell(first[name].join(", ")));
@@ -100,8 +105,6 @@ window.Workspace = function() {
 				firstFollowConflicts.push(name);
 			}
 
-			// TODO: add other anti-LL1 conditions once the recursion and
-			// factoring test are implemented
 			var isAntiLL1 = recursionType || factorizationType || (derivesEpsilon && intFirstFollow.length > 0);
 			if (isAntiLL1) {
 				row.classList.add("antiLL1");
@@ -118,10 +121,7 @@ window.Workspace = function() {
 			table.appendChild(row);
 		}
 		container().appendChild(table);
-
-		if (isLL1) {
-			printParsingTable();
-		}
+		return isLL1;
 	}
 
 	// Prints the parsing table of the current CFG of this workspace.
@@ -157,7 +157,7 @@ window.Workspace = function() {
 			row.appendChild(genCell(nonTerminals[i], true));
 			for (var j = 0; j < terminals.length; j++) {
 				var content = parsingTable[nonTerminals[i]][terminals[j]];
-				cell = genCell("-");
+				cell = genCell(Utilities.NO_TRANSITION);
 				if (content !== null) {
 					cell.innerHTML = content;
 					cell.classList.add("productionPointer");
@@ -167,14 +167,11 @@ window.Workspace = function() {
 			table.appendChild(row);
 		}
 		container().appendChild(table);
-
-		printProductionIndexes();
 	}
 
+	// Prints a table containing each production of this CFG and its index.
 	function printProductionIndexes() {
 		var cfg = self.currentCFG;
-		// var nonTerminals = cfg.getNonTerminals();
-		// var terminals = cfg.getTerminals().concat([DOLLAR]);
 		var productionList = cfg.productionList();
 
 		var table = node("table");
@@ -196,14 +193,47 @@ window.Workspace = function() {
 		container().appendChild(table);
 	}
 
+	function printSimulator() {
+		var cfg = self.currentCFG;
+
+		var table = node("table");
+		var row = node("tr");
+		row.appendChild(genCell("Parser Simulator", true));
+		table.appendChild(row);
+
+		row = node("tr");
+		var cell = node("td");
+		var input = node("input");
+		input.type = "text";
+		input.placeholder = "Type a sentence...";
+		input.id = "simulator_input";
+		cell.appendChild(input);
+		cell.appendChild(node("br"));
+
+		input = node("input");
+		input.type = "button";
+		input.value = "Simulate";
+		input.id = "simulate_btn";
+		cell.appendChild(input);
+		row.appendChild(cell);
+		table.appendChild(row);
+		container().appendChild(table);
+	}
+
 	// Updates the UI, replacing all previous content with the informations
 	// about the current CFG.
 	function updateUI() {
 		container().innerHTML = "";
-		printAnalysisTable();
+		var isLL1 = printAnalysisTable();
+		if (isLL1) {
+			printParsingTable();
+			printProductionIndexes();
+			printSimulator();
+		}
 		updateEvents();
 	}
 
+	// Updates all interface-related events.
 	function updateEvents() {
 		var pointerList = pointers();
 		for (var i = 0; i < pointerList.length; i++) {
@@ -215,6 +245,10 @@ window.Workspace = function() {
 				productionContainer(this.innerHTML).classList.remove("highlight");
 			});
 		}
+
+		simulateButton().addEventListener("click", function() {
+			self.currentCFG.evaluate(simulatorInput().value);
+		});
 	}
 
 	// Shows an error to the user.
