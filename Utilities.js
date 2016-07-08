@@ -10,10 +10,12 @@ window.Utilities = {
 	// Special symbols
 	EPSILON: "&",
 	DOLLAR: "$",
+	TRANSITION_SYMBOL: "➞",
 
 	// Error messages
 	ERROR_INVALID_GRAMMAR: "Invalid grammar",
 	ERROR_INVALID_PRODUCTION: "Invalid production",
+	ERROR_NOT_LL1: "The grammar is not LL(1)",
 
 	// Labels
 	RECURSION_TYPES: {

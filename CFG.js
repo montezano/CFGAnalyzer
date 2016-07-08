@@ -389,6 +389,36 @@ window.CFG = function(cfgStr) {
 		return result;
 	};
 
+	// Returns the parsing table of this grammar.
+	this.parsingTable = function() {
+		var table = {};
+		var nonTerminals = self.getNonTerminals();
+		var terminals = self.getTerminals().concat([DOLLAR]);
+		for (var i = 0; i < nonTerminals.length; i++) {
+			table[nonTerminals[i]] = {};
+			for (var j = 0; j < terminals.length; j++) {
+				table[nonTerminals[i]][terminals[j]] = null;
+			}
+		}
+
+		self.firstData = self.first();
+		var follow = self.follow();
+		productionIteration(function(name, production) {
+			var first = compositeFirst(production);
+			for (var i = 0; i < first.length; i++) {
+				if (first[i] == EPSILON) {
+					first = first.concat(follow[name]);
+				} else {
+					if (table[name][first[i]]) {
+						throw Utilities.ERROR_NOT_LL1;
+					}
+					table[name][first[i]] = production;
+				}
+			}
+		});
+		return table;
+	};
+
 	var lines = cfgStr.split("\n");
 	for (var i = 0; i < lines.length; i++) {
 		lines[i] = lines[i].trim();
@@ -402,7 +432,17 @@ window.CFG = function(cfgStr) {
 			throw Utilities.ERROR_INVALID_GRAMMAR;
 		}
 	}
-	this.string = lines.join("\n");
+
+	this.string = "";
+	for (var name in self.productions) {
+		if (!self.productions.hasOwnProperty(name)) continue;
+		var productions = [];
+		for (var i = 0; i < self.productions[name].length; i++) {
+			production.push(self.productions[name][i].join(" "));
+		}
+		this.string += name + " " + Utilities.TRANSITION_SYMBOL + " " + productions.join(" | ");
+		this.string += "\n";
+	}
 };
 
 })();
