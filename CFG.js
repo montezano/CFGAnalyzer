@@ -430,10 +430,62 @@ window.CFG = function(cfgStr) {
 		return result;
 	};
 
-	this.evaluate = function(input) {
-		alert("Not yet implemented");
-		console.log(input);
+	function unwind(stack, input, parsingTable, productionList, history) {
+		var top = stack[stack.length - 1];
+		while (Utilities.isNonTerminal(top)) {
+			stack.pop();
+			var productionIndex = parsingTable[top][input];
+			if (productionIndex == null) {
+				if (input == DOLLAR) {
+					throw "Unexpected end of sentence";
+				} else {
+					throw "Unexpected symbol '" + input + "'";
+				}
+			}
+			var pair = productionList[productionIndex];
+			var production = pair[1];
+			history.push(productionIndex);
+			for (var i = production.length - 1; i >= 0; i--) {
+				if (production[i] != EPSILON) {
+					stack.push(production[i]);
+				}
+			}
+			console.log(stack);
+			top = stack[stack.length - 1];
+		}
 	}
+
+	this.evaluate = function(input) {
+		var history = [];
+		var parsingTable = self.parsingTable();
+		var productionList = self.productionList();
+		var stack = [DOLLAR, self.initialSymbol];
+
+		input = (input.replace(/\s+/g, ' ') + ' ' + DOLLAR).trim();
+		var symbols = input.split(' ');
+		console.log(symbols);
+		for (var i = 0; i < symbols.length; i++) {
+			var symbol = symbols[i];
+			try {
+				unwind(stack, symbol, parsingTable, productionList, history);
+			} catch (e) {
+				return [false, history, i, e];
+			}
+			var top = stack[stack.length - 1];
+			if (symbol != top || stack.length == 0) {
+				var message;
+				if (stack.length == 1) {
+					message = "Expected end of sentence, found '" + symbol + "'";
+				} else {
+					message = "Expected '" + top + "', found '" + symbol + "'";
+				}
+				return [false, history, i, message];
+			}
+			stack.pop();
+			console.log(stack);
+		}
+		return [stack.length == 0, history];
+	};
 
 	var lines = cfgStr.split("\n");
 	for (var i = 0; i < lines.length; i++) {

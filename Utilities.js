@@ -29,6 +29,11 @@ window.Utilities = {
 		2: "<span class='notOK'>Indirect</span>"
 	},
 
+	SIMULATION_STATUS: {
+		0: "<span class='notOK'>Rejected</span>",
+		1: "<span class='ok'>Accepted</span>"
+	},
+
 	isNonTerminal: function(symbol) {
 		return Utilities.nonTerminals.includes(symbol[0]) && !isNaN(symbol.slice(1));
 	},

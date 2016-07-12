@@ -30,6 +30,10 @@ var simulateButton = function() {
 	return $("#simulate_btn");
 };
 
+var simulationResults = function() {
+	return $("#simulationResults");
+};
+
 var node = function(tag) {
 	return document.createElement(tag);
 };
@@ -193,10 +197,12 @@ window.Workspace = function() {
 		container().appendChild(table);
 	}
 
+	// Prints a parser simulator.
 	function printSimulator() {
 		var cfg = self.currentCFG;
 
 		var table = node("table");
+		table.classList.add("inline");
 		var row = node("tr");
 		row.appendChild(genCell("Parser Simulator", true));
 		table.appendChild(row);
@@ -220,15 +226,69 @@ window.Workspace = function() {
 		container().appendChild(table);
 	}
 
+	// Prints the output of a simulation.
+	function printSimulatorOutput(output) {
+		var accepted = output[0];
+		var history = output[1];
+		var errorIndex = output[2];
+		var errorMessage = output[3];
+
+		var input = simulatorInput().value;
+		input = input.replace(/\s+/g, ' ');
+		var symbols = input.split(' ').concat([Utilities.DOLLAR]);
+
+		var table = node("table");
+		table.id = "simulationResults";
+		var row = node("tr");
+		row.appendChild(genCell("Simulation Results", true));
+		table.appendChild(row);
+
+		var statusLabel = Utilities.SIMULATION_STATUS[accepted * 1];
+		row = node("tr");
+		row.appendChild(genCell("Status: " + statusLabel));
+		table.appendChild(row);
+
+		row = node("tr");
+		if (accepted) {
+			row.appendChild(genCell(symbols.join(' ')));
+		} else {
+			var content = symbols.slice(0, errorIndex).join(' ') + " ";
+			content += "<span class='error'>" + symbols[errorIndex] + "</span>";
+			content += " " + symbols.slice(errorIndex + 1);
+			row.appendChild(genCell(content));
+		}
+		table.appendChild(row);
+
+		if (!accepted) {
+			row = node("tr");
+			row.appendChild(genCell(errorMessage));
+			table.appendChild(row);
+		}
+
+		row = node("tr");
+		row.appendChild(genCell("Derivation Sequence", true));
+		table.appendChild(row);
+
+		for (var i = 0; i < history.length; i++) {
+			row = node("tr");
+			var cell = genCell(history[i]);
+			cell.classList.add("productionPointer");
+			row.appendChild(cell);
+			table.appendChild(row);
+		}
+
+		container().appendChild(table);
+	}
+
 	// Updates the UI, replacing all previous content with the informations
 	// about the current CFG.
 	function updateUI() {
 		container().innerHTML = "";
 		var isLL1 = printAnalysisTable();
 		if (isLL1) {
+			printSimulator();
 			printParsingTable();
 			printProductionIndexes();
-			printSimulator();
 		}
 		updateEvents();
 	}
@@ -247,7 +307,14 @@ window.Workspace = function() {
 		}
 
 		simulateButton().addEventListener("click", function() {
-			self.currentCFG.evaluate(simulatorInput().value);
+			var container = simulationResults();
+			if (container) {
+				container.parentElement.removeChild(container);
+			}
+
+			var output = self.currentCFG.evaluate(simulatorInput().value);
+			printSimulatorOutput(output);
+			updateEvents();
 		});
 	}
 

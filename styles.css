@@ -81,6 +81,10 @@ span.notOK {
 	color: red;
 }
 
+span.ok {
+	color: green;
+}
+
 #main table.padded th, #main table.padded td {
 	padding: 5px 10px;
 }
@@ -90,7 +94,7 @@ span.notOK {
 	vertical-align: top;
 }
 
-tr.highlight td:first-child {
+tr.highlight td:first-child, span.error {
 	color: red;
 	text-decoration: underline;
 }
