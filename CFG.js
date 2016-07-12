@@ -450,7 +450,7 @@ window.CFG = function(cfgStr) {
 					stack.push(production[i]);
 				}
 			}
-			console.log(stack);
+			// console.log(stack);
 			top = stack[stack.length - 1];
 		}
 	}
@@ -482,7 +482,7 @@ window.CFG = function(cfgStr) {
 				return [false, history, i, message];
 			}
 			stack.pop();
-			console.log(stack);
+			// console.log(stack);
 		}
 		return [stack.length == 0, history];
 	};

@@ -234,8 +234,8 @@ window.Workspace = function() {
 		var errorMessage = output[3];
 
 		var input = simulatorInput().value;
-		input = input.replace(/\s+/g, ' ');
-		var symbols = input.split(' ').concat([Utilities.DOLLAR]);
+		input = (input.replace(/\s+/g, ' ') + ' ' + Utilities.DOLLAR).trim();
+		var symbols = input.split(' ');
 
 		var table = node("table");
 		table.id = "simulationResults";
@@ -254,7 +254,7 @@ window.Workspace = function() {
 		} else {
 			var content = symbols.slice(0, errorIndex).join(' ') + " ";
 			content += "<span class='error'>" + symbols[errorIndex] + "</span>";
-			content += " " + symbols.slice(errorIndex + 1);
+			content += " " + symbols.slice(errorIndex + 1).join(' ');
 			row.appendChild(genCell(content));
 		}
 		table.appendChild(row);
