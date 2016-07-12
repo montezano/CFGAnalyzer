@@ -306,16 +306,18 @@ window.Workspace = function() {
 			});
 		}
 
-		simulateButton().addEventListener("click", function() {
-			var container = simulationResults();
-			if (container) {
-				container.parentElement.removeChild(container);
-			}
+		if (simulateButton()) {
+			simulateButton().addEventListener("click", function() {
+				var container = simulationResults();
+				if (container) {
+					container.parentElement.removeChild(container);
+				}
 
-			var output = self.currentCFG.evaluate(simulatorInput().value);
-			printSimulatorOutput(output);
-			updateEvents();
-		});
+				var output = self.currentCFG.evaluate(simulatorInput().value);
+				printSimulatorOutput(output);
+				updateEvents();
+			});
+		}
 	}
 
 	// Shows an error to the user.
@@ -325,7 +327,6 @@ window.Workspace = function() {
 
 	// Sets the current CFG of this workspace.
 	this.setCFG = function(cfg) {
-		cfg = cfg.replace(/</g, '&lt;').replace(/([^-])>/g, '$1&gt;');
 		var instance;
 		try {
 			instance = new CFG(cfg);
@@ -334,7 +335,7 @@ window.Workspace = function() {
 			return false;
 		}
 		self.currentCFG = instance;
-		cfgContainer().innerHTML = instance.string.replace(/\n/g, "<br>");
+		cfgContainer().innerHTML = instance.string.replace(/</g, '&lt;').replace(/([^-])>/g, '$1&gt;').replace(/\n/g, "<br>");
 		updateUI();
 		return true;
 	};

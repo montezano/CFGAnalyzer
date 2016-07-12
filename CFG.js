@@ -463,7 +463,6 @@ window.CFG = function(cfgStr) {
 
 		input = (input.replace(/\s+/g, ' ') + ' ' + DOLLAR).trim();
 		var symbols = input.split(' ');
-		console.log(symbols);
 		for (var i = 0; i < symbols.length; i++) {
 			var symbol = symbols[i];
 			try {
