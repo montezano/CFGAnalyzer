@@ -68,6 +68,26 @@ window.CFG = function(cfgStr) {
 		}
 	};
 
+	// Checks if this grammar is consistent, i.e, if all used non-terminals are
+	// defined.
+	function checkConsistency() {
+		var nonTerminals = self.getNonTerminals();
+		var undefinedNonTerminals = [];
+		productionIteration(function(name, production) {
+			for (var i = 0; i < production.length; i++) {
+				var symbol = production[i];
+				if (Utilities.isNonTerminal(symbol) && !nonTerminals.includes(symbol)) {
+					undefinedNonTerminals.push(symbol);
+				}
+			}
+		});
+
+		if (undefinedNonTerminals.length > 0) {
+			throw Utilities.ERROR_INVALID_GRAMMAR +
+				  ". The following symbols are undefined: " + undefinedNonTerminals.join(", ");
+		}
+	}
+
 	// Receives a string representation of a group of productions
 	// involving one non-terminal and adds all of them to this CFG.
 	this.addProductions = function(str) {
@@ -503,6 +523,8 @@ window.CFG = function(cfgStr) {
 	if (lines.length == 0) {
 		throw Utilities.ERROR_INVALID_GRAMMAR;
 	}
+
+	checkConsistency();
 	this.string = lines.join("\n");
 	// this.string = "";
 	// for (var name in self.productions) {
