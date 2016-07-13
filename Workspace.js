@@ -234,7 +234,7 @@ window.Workspace = function() {
 		var errorMessage = output[3];
 
 		var input = simulatorInput().value;
-		input = (input.replace(/\s+/g, ' ') + ' ' + Utilities.DOLLAR).trim();
+		input = input.replace(/\s+/g, ' ').trim() + ' ' + Utilities.DOLLAR;
 		var symbols = input.split(' ');
 
 		var table = node("table");
@@ -295,17 +295,7 @@ window.Workspace = function() {
 
 	// Updates all interface-related events.
 	function updateEvents() {
-		var pointerList = pointers();
-		for (var i = 0; i < pointerList.length; i++) {
-			var element = pointerList[i];
-			element.addEventListener("mouseover", function() {
-				productionContainer(this.innerHTML).classList.add("highlight");
-			});
-			element.addEventListener("mouseout", function() {
-				productionContainer(this.innerHTML).classList.remove("highlight");
-			});
-		}
-
+		updatePointerEvents();
 		if (simulateButton()) {
 			simulateButton().addEventListener("click", function() {
 				var container = simulationResults();
@@ -315,7 +305,21 @@ window.Workspace = function() {
 
 				var output = self.currentCFG.evaluate(simulatorInput().value);
 				printSimulatorOutput(output);
-				updateEvents();
+				updatePointerEvents();
+			});
+		}
+	}
+
+	// Updates all production pointer-related events.
+	function updatePointerEvents() {
+		var pointerList = pointers();
+		for (var i = 0; i < pointerList.length; i++) {
+			var element = pointerList[i];
+			element.addEventListener("mouseover", function() {
+				productionContainer(this.innerHTML).classList.add("highlight");
+			});
+			element.addEventListener("mouseout", function() {
+				productionContainer(this.innerHTML).classList.remove("highlight");
 			});
 		}
 	}

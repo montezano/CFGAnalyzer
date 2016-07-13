@@ -481,7 +481,7 @@ window.CFG = function(cfgStr) {
 		var productionList = self.productionList();
 		var stack = [DOLLAR, self.initialSymbol];
 
-		input = (input.replace(/\s+/g, ' ') + ' ' + DOLLAR).trim();
+		input = input.replace(/\s+/g, ' ').trim() + ' ' + DOLLAR;
 		var symbols = input.split(' ');
 		for (var i = 0; i < symbols.length; i++) {
 			var symbol = symbols[i];
