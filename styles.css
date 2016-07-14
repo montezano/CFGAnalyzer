@@ -44,6 +44,8 @@ body {
 #cfg {
 	height: 200px;
 	width: 100%;
+	position: relative;
+	z-index: 99;
 }
 
 input[type="button"] {
