@@ -279,9 +279,12 @@ window.CFG = function(cfgStr) {
 
 	// Populates a map with the first set of a given non-terminal and all
 	// other non-terminals it depends on.
-	function populateFirst(container, nonTerminal) {
-		if (!container.hasOwnProperty(nonTerminal)) {
-			container[nonTerminal] = [];
+	function populateFirst(container, nonTerminal, visited) {
+		if (!visited.includes(nonTerminal)) {
+			if (!container.hasOwnProperty(nonTerminal)) {
+				container[nonTerminal] = [];
+			}
+			visited.push(nonTerminal);
 		} else {
 			return;
 		}
@@ -301,7 +304,7 @@ window.CFG = function(cfgStr) {
 					break;
 				}
 
-				populateFirst(container, production[j]);
+				populateFirst(container, production[j], visited);
 				var first = container[production[j]];
 				var hasEpsilon = pushNonEpsilons(first, container[nonTerminal]);
 				if (!hasEpsilon) {
@@ -372,7 +375,8 @@ window.CFG = function(cfgStr) {
 		var result = {};
 		var nonTerminals = self.getNonTerminals();
 		for (var i = 0; i < nonTerminals.length; i++) {
-			populateFirst(result, nonTerminals[i]);
+			var visited = [];
+			populateFirst(result, nonTerminals[i], visited);
 		}
 
 		for (var i = 0; i < nonTerminals.length; i++) {
