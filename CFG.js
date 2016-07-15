@@ -375,8 +375,10 @@ window.CFG = function(cfgStr) {
 		var result = {};
 		var nonTerminals = self.getNonTerminals();
 		for (var i = 0; i < nonTerminals.length; i++) {
-			var visited = [];
-			populateFirst(result, nonTerminals[i], visited);
+			populateFirst(result, nonTerminals[i], []);
+			// Prevents a bug where &-transitions could make the
+			// first set become incomplete
+			populateFirst(result, nonTerminals[i], []);
 		}
 
 		for (var i = 0; i < nonTerminals.length; i++) {
