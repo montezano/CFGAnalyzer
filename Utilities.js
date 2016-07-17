@@ -53,6 +53,22 @@ window.Utilities = {
 		}
 	},
 
+	// Removes all duplicated elements of a indexable array.
+	removeIndexableDuplicates: function(array) {
+		array.sort();
+		array.reverse();
+		var map = {};
+		while (array.length > 0) {
+			map[array.pop()] = 1;
+		}
+
+		for (var key in map) {
+			if (map.hasOwnProperty(key)) {
+				array.push(key);
+			}
+		}
+	},
+
 	// Returns the union of two arrays.
 	union: function(arr1, arr2) {
 		var result = arr1.concat(arr2);

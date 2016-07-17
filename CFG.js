@@ -279,7 +279,7 @@ window.CFG = function(cfgStr) {
 
 	// Populates a map with the first set of a given non-terminal and all
 	// other non-terminals it depends on.
-	function populateFirst(container, nonTerminal, visited) {
+	function populateFirst(container, nonTerminal, visited, uncertain) {
 		if (!visited.includes(nonTerminal)) {
 			if (!container.hasOwnProperty(nonTerminal)) {
 				container[nonTerminal] = [];
@@ -294,6 +294,9 @@ window.CFG = function(cfgStr) {
 			var production = productions[i];
 			if (Utilities.isTerminal(production[0]) || production[0] == EPSILON) {
 				container[nonTerminal].push(production[0]);
+				if (production[0] == EPSILON) {
+					uncertain.push(nonTerminal);
+				}
 				continue;
 			}
 
@@ -304,7 +307,7 @@ window.CFG = function(cfgStr) {
 					break;
 				}
 
-				populateFirst(container, production[j], visited);
+				populateFirst(container, production[j], visited, uncertain);
 				var first = container[production[j]];
 				var hasEpsilon = pushNonEpsilons(first, container[nonTerminal]);
 				if (!hasEpsilon) {
@@ -315,6 +318,7 @@ window.CFG = function(cfgStr) {
 
 			if (j == production.length) {
 				container[nonTerminal].push(EPSILON);
+				uncertain.push(nonTerminal);
 			}
 		}
 	}
@@ -372,18 +376,32 @@ window.CFG = function(cfgStr) {
 	// Returns a map associating each non-terminal of this grammar
 	// with its corresponding first array.
 	this.first = function() {
+		if (self.firstData != null) {
+			return self.firstData;
+		}
 		var result = {};
 		var nonTerminals = self.getNonTerminals();
+		var uncertain = [];
+		var visited = [];
 		for (var i = 0; i < nonTerminals.length; i++) {
-			populateFirst(result, nonTerminals[i], []);
+			visited = [];
+			populateFirst(result, nonTerminals[i], visited, uncertain);
+		}
+
+		Utilities.removeDuplicates(uncertain);
+
+		visited = [];
+		while (uncertain.length > 0) {
 			// Prevents a bug where &-transitions could make the
 			// first set become incomplete
-			populateFirst(result, nonTerminals[i], []);
+			populateFirst(result, uncertain.pop(), visited, uncertain);
 		}
 
 		for (var i = 0; i < nonTerminals.length; i++) {
-			Utilities.removeDuplicates(result[nonTerminals[i]]);
+			Utilities.removeIndexableDuplicates(result[nonTerminals[i]]);
 		}
+
+		self.firstData = result;
 		return result;
 	};
 
