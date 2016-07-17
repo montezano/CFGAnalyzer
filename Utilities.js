@@ -34,10 +34,12 @@ window.Utilities = {
 		1: "<span class='ok'>Accepted</span>"
 	},
 
+	// Checks if a given symbol is a non-terminal
 	isNonTerminal: function(symbol) {
 		return Utilities.nonTerminals.includes(symbol[0]) && !isNaN(symbol.slice(1));
 	},
 
+	// Checks if a given symbol is a non-empty terminal
 	isTerminal: function(symbol) {
 		return !Utilities.isNonTerminal(symbol) && symbol != Utilities.EPSILON;
 	},
@@ -53,7 +55,7 @@ window.Utilities = {
 		}
 	},
 
-	// Removes all duplicated elements of a indexable array.
+	// Removes all duplicated elements of an indexable array.
 	removeIndexableDuplicates: function(array) {
 		array.sort();
 		array.reverse();

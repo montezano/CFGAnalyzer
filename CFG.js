@@ -474,7 +474,11 @@ window.CFG = function(cfgStr) {
 		return result;
 	};
 
+	// Unwinds the stack until there's a terminal symbol on the top.
 	function unwind(stack, input, parsingTable, productionList, history) {
+		if (stack.length == 0) {
+			return;
+		}
 		var top = stack[stack.length - 1];
 		while (Utilities.isNonTerminal(top)) {
 			stack.pop();
@@ -494,11 +498,12 @@ window.CFG = function(cfgStr) {
 					stack.push(production[i]);
 				}
 			}
-			// console.log(stack);
 			top = stack[stack.length - 1];
 		}
 	}
 
+	// Evaluates a given sentence using this grammar, returning informations
+	// about its evaluation like derivation sequence, error message, etc.
 	this.evaluate = function(input) {
 		var history = [];
 		var parsingTable = self.parsingTable();
@@ -519,13 +524,14 @@ window.CFG = function(cfgStr) {
 				var message;
 				if (stack.length == 1) {
 					message = "Expected end of sentence, found '" + symbol + "'";
-				} else {
+				} else if (stack.length > 1) {
 					message = "Expected '" + top + "', found '" + symbol + "'";
+				} else {
+					message = "Unexpected '" + symbol + "'";
 				}
 				return [false, history, i, message];
 			}
 			stack.pop();
-			// console.log(stack);
 		}
 		return [stack.length == 0, history];
 	};
@@ -550,16 +556,6 @@ window.CFG = function(cfgStr) {
 
 	checkConsistency();
 	this.string = lines.join("\n");
-	// this.string = "";
-	// for (var name in self.productions) {
-	// 	if (!self.productions.hasOwnProperty(name)) continue;
-	// 	var productions = [];
-	// 	for (var i = 0; i < self.productions[name].length; i++) {
-	// 		productions.push(self.productions[name][i].join(" "));
-	// 	}
-	// 	this.string += name + " " + Utilities.TRANSITION_SYMBOL + " ";
-	// 	this.string += productions.join(" | ") + "\n";
-	// }
 };
 
 })();
