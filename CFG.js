@@ -9,6 +9,7 @@ window.CFG = function(cfgStr) {
 	this.productions = {};
 	this.initialSymbol = null;
 	this.firstData = null;
+	this.epsilonFreeCFG = {};
 
 	/*
 	Receives a string representation of a group of productions
@@ -324,7 +325,7 @@ window.CFG = function(cfgStr) {
 	}
 
 	// Returns the first set of a sequence of symbols, given that the first
-	// set of all non-terminals are available in self.firstData.
+	// set of all non-terminals are available in self.firstData.r
 	function compositeFirst(symbolSequence) {
 		var result = [];
 		if (symbolSequence.length == 0
@@ -433,108 +434,16 @@ window.CFG = function(cfgStr) {
 		return result;
 	};
 
-	// Returns the parsing table of this grammar.
-	this.parsingTable = function() {
-		var table = {};
-		var nonTerminals = self.getNonTerminals();
-		var terminals = self.getTerminals().concat([DOLLAR]);
-		for (var i = 0; i < nonTerminals.length; i++) {
-			table[nonTerminals[i]] = {};
-			for (var j = 0; j < terminals.length; j++) {
-				table[nonTerminals[i]][terminals[j]] = null;
+
+	this.epsilonFree = function() {
+		for (var name in self.productions) {
+			if (self.productions.hasOwnProperty(name)) {
+				self.epsilonFreeCFG[name] = [];
+				pushNonEpsilons(self.productions[name], self.epsilonFreeCFG[name]);
 			}
 		}
-
-		self.firstData = self.first();
-		var follow = self.follow();
-		var productionList = self.productionList();
-		productionIteration(function(name, production) {
-			var first = compositeFirst(production);
-			for (var i = 0; i < first.length; i++) {
-				if (first[i] == EPSILON) {
-					first = first.concat(follow[name]);
-				} else {
-					if (table[name][first[i]]) {
-						throw Utilities.ERROR_NOT_LL1;
-					}
-					var pair = [name, production];
-					table[name][first[i]] = Utilities.indexOf(productionList, pair);
-				}
-			}
-		});
-		return table;
 	};
 
-	// Returns a list of pairs corresponding to the productions of this grammar.
-	this.productionList = function() {
-		var result = [];
-		productionIteration(function(name, production) {
-			result.push([name, production]);
-		});
-		return result;
-	};
-
-	// Unwinds the stack until there's a terminal symbol on the top.
-	function unwind(stack, input, parsingTable, productionList, history) {
-		if (stack.length == 0) {
-			return;
-		}
-		var top = stack[stack.length - 1];
-		while (Utilities.isNonTerminal(top)) {
-			stack.pop();
-			var productionIndex = parsingTable[top][input];
-			if (productionIndex == null) {
-				if (input == DOLLAR) {
-					throw "Unexpected end of sentence";
-				} else {
-					throw "Unexpected symbol '" + input + "'";
-				}
-			}
-			var pair = productionList[productionIndex];
-			var production = pair[1];
-			history.push(productionIndex);
-			for (var i = production.length - 1; i >= 0; i--) {
-				if (production[i] != EPSILON) {
-					stack.push(production[i]);
-				}
-			}
-			top = stack[stack.length - 1];
-		}
-	}
-
-	// Evaluates a given sentence using this grammar, returning informations
-	// about its evaluation like derivation sequence, error message, etc.
-	this.evaluate = function(input) {
-		var history = [];
-		var parsingTable = self.parsingTable();
-		var productionList = self.productionList();
-		var stack = [DOLLAR, self.initialSymbol];
-
-		input = input.replace(/\s+/g, ' ').trim() + ' ' + DOLLAR;
-		var symbols = input.split(' ');
-		for (var i = 0; i < symbols.length; i++) {
-			var symbol = symbols[i];
-			try {
-				unwind(stack, symbol, parsingTable, productionList, history);
-			} catch (e) {
-				return [false, history, i, e];
-			}
-			var top = stack[stack.length - 1];
-			if (symbol != top || stack.length == 0) {
-				var message;
-				if (stack.length == 1) {
-					message = "Expected end of sentence, found '" + symbol + "'";
-				} else if (stack.length > 1) {
-					message = "Expected '" + top + "', found '" + symbol + "'";
-				} else {
-					message = "Unexpected '" + symbol + "'";
-				}
-				return [false, history, i, message];
-			}
-			stack.pop();
-		}
-		return [stack.length == 0, history];
-	};
 
 	var lines = cfgStr.split("\n");
 	for (var i = 0; i < lines.length; i++) {
