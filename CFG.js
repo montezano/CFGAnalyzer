@@ -436,11 +436,42 @@ window.CFG = function(cfgStr) {
 
 
 	this.epsilonFree = function() {
+		var epsFreeRet = false;
 		for (var name in self.productions) {
 			if (self.productions.hasOwnProperty(name)) {
 				self.epsilonFreeCFG[name] = [];
-				pushNonEpsilons(self.productions[name], self.epsilonFreeCFG[name]);
+				epsFreeRet |= pushNonEpsilons(self.productions[name], self.epsilonFreeCFG[name]);
 			}
+		}
+
+		if (!epsFreeRet) {
+			return true;
+		}
+
+		var epsilonList = [];
+		var newEpsListSize = 0;
+		var oldEpsListSize = -1;
+		while (newEpsListSize != oldEpsListSize) {
+			oldEpsListSize = newEpsListSize;
+			productionIteration(function(name, production) {
+				if (production == EPSILON) {
+					epsilonList.push(name);
+				}
+			});
+		}
+
+		for (var i = 0; i < epsilonList.length; i++)
+		{
+			productionIteration(function(name, production) {
+				if (production.indexOf(epsilonList[i]) >= 0) {
+					var newProd = production.filter(function(elem, j, array) {
+						console.log("prodname: " + elem);
+						console.log("epsilon: " + epsilonList[i]);
+						return elem == epsilonList[i];
+					});
+					self.epsilonFreeCFG[name].push(newProd);	
+				}
+			});
 		}
 	};
 

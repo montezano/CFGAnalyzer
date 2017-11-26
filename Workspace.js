@@ -113,6 +113,8 @@ window.Workspace = function() {
 		}
 		container().appendChild(table);
 
+		cfg.epsilonFree();
+
 		return isLL1;
 	}
 
@@ -178,7 +180,6 @@ window.Workspace = function() {
 	this.toString = function() {
 		return self.currentCFG.string;
 	};
-
 
 	// Receives the content of a file and adds the grammar it contains.
 	this.load = function(fileContent) {
