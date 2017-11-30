@@ -10,6 +10,7 @@ window.CFG = function(cfgStr) {
 	this.initialSymbol = null;
 	this.firstData = null;
 	this.epsilonFreeCFG = {};
+	this.cicleFreeCFG = {};
 
 	/*
 	Receives a string representation of a group of productions
@@ -474,6 +475,24 @@ window.CFG = function(cfgStr) {
 			});
 		}
 	};
+
+	this.removeSimpleProductions = function() {
+		var n = {};
+		//populate N set
+		for (var production in self.epsilonFreeCFG) {
+			n.set(production, productions);
+		}
+
+		while(algo) {
+			for (var epsFreeProd in self.epsilonFreeCFG) {
+				productionIteration(function(name, production) {
+					
+				})
+			}			
+		}
+
+
+	}
 
 
 	var lines = cfgStr.split("\n");
