@@ -502,33 +502,51 @@ window.CFG = function(cfgStr) {
 		while(changed) {
 			changed = false;
 
-			//for all productions name
-			for (var efpName in self.epsilonFreeCFG) {
-				if (self.epsilonFreeCFG.hasOwnProperty(efpName)) {
 
-					// for all productions of name
-					for( var i = 0; i < self.epsilonFreeCFG[efpName].length; i++) {
 
-						// for all keys from n
-						for ( var nName in n) {
-
-							if(n.hasOwnProperty(nName)) {
-								if (Utilities.arraysEqual(self.epsilonFreeCFG[efpName][i], n[nName])) {
-									if(!n[efpName].includes(nName)) {
-										var ntemp = n[efpName];
-										var nConc = Utilities.concatNoDups(n[efpName], n[nName]);
-
-										if(!Utilities.arraysEqual(ntemp, nConc)) {
-											changed = true;
-											n[efpName] = nConc;
-										}
-									}
-								}	
-							}
-						}
-					}
+			productionIterationAltCFG(function(name, production) {
+				if(production.length == 1) {
+					if (n.hasOwnProperty(production)) {
+						if(!n[name].includes(production[0])) {
+							n[name].push(production[0]);	
+							changed = true;
+						}	
+					}				
 				}
-			}
+			}, self.epsilonFreeCFG);
+
+
+
+
+
+
+			// //for all productions name
+			// for (var efpName in self.epsilonFreeCFG) {
+			// 	if (self.epsilonFreeCFG.hasOwnProperty(efpName)) {
+
+			// 		// for all productions of name
+			// 		for( var i = 0; i < self.epsilonFreeCFG[efpName].length; i++) {
+
+			// 			// for all keys from n
+			// 			for ( var nName in n) {
+
+			// 				if(n.hasOwnProperty(nName)) {
+			// 					if (Utilities.arraysEqual(self.epsilonFreeCFG[efpName][i], n[nName])) {
+			// 						if(!n[efpName].includes(nName)) {
+			// 							var ntemp = n[efpName];
+			// 							var nConc = Utilities.concatNoDups(n[efpName], n[nName]);
+
+			// 							if(!Utilities.arraysEqual(ntemp, nConc)) {
+			// 								changed = true;
+			// 								n[efpName] = nConc;
+			// 							}
+			// 						}
+			// 					}	
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// }
 
 			if (changed) {
 				for (var nName in n) {
