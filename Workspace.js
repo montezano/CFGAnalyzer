@@ -115,6 +115,7 @@ window.Workspace = function() {
 
 		cfg.epsilonFree();
 		cfg.removeSimpleProductions();
+		cfg.removeUnreachables();
 
 		return isLL1;
 	}

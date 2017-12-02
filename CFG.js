@@ -11,6 +11,7 @@ window.CFG = function(cfgStr) {
 	this.firstData = null;
 	this.epsilonFreeCFG = {};
 	this.cicleFreeCFG = {};
+	this.unreachablesFreeCFG = {};
 
 	/*
 	Receives a string representation of a group of productions
@@ -575,6 +576,49 @@ window.CFG = function(cfgStr) {
 				}
 			}	
 		}
+	}
+
+	this.removeUnreachables = function() {
+		var v = [];
+		v.push(self.initialSymbol);
+
+		var changed = true;
+
+		while(changed) {
+			changed = false;
+			for (var i = 0; i < v.length; i++) {
+
+				if (Utilities.isNonTerminal(v[i])) {
+					var tempProd = self.cicleFreeCFG[v[i]];
+
+
+					productionIterationAltCFG(function(name, production) {
+						if (name === v[i]) {
+							for (var j = 0; j < production.length; j++) {
+								if (!v.includes(production[j])) {
+									v.push(production[j]);
+									changed = true;
+								}
+							}	
+						}
+					}, self.cicleFreeCFG);
+				}
+			}
+		}
+
+		productionIterationAltCFG(function(name, production) {
+			if (v.includes(name)) {
+				var includesAll = true;
+				for (var i = 0; i < production.length; i++) {
+					if (!v.includes(production[i])) {
+						includesAll = false;
+					}
+				}
+				if (includesAll) {
+					self.addProductionAltCFG(name, production, self.unreachablesFreeCFG);
+				}
+			}
+		}, self.cicleFreeCFG);
 	}
 
 
