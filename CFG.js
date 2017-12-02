@@ -132,6 +132,15 @@ window.CFG = function(cfgStr) {
 		}
 	};
 
+	// Receives the informations about a production and adds it
+	// to this CFG.
+	this.addProductionAltCFG = function(name, symbolSequence, cfg) {
+		if (!cfg.hasOwnProperty(name)) {
+			cfg[name] = [];
+		}
+		cfg[name].push(symbolSequence);
+	};
+
 	// Receives the informations about a production and removes it
 	// from this CFG.
 	this.removeProduction = function(name, symbolSequence) {
@@ -497,6 +506,13 @@ window.CFG = function(cfgStr) {
 			n[epsFreeProd].push(epsFreeProd);
 		}
 
+		productionIterationAltCFG(function(name, production) {
+			if (production.length > 1 || Utilities.isTerminal(production)) {
+				self.addProductionAltCFG(name, production, self.cicleFreeCFG);
+			}
+		}, self.epsilonFreeCFG);
+
+
 		// populate N set
 		var changed = true;
 		while(changed) {
@@ -510,43 +526,13 @@ window.CFG = function(cfgStr) {
 						if(!n[name].includes(production[0])) {
 							n[name].push(production[0]);	
 							changed = true;
+
+							self.cicleFreeCFG[name] = Utilities.concatNoDups(self.cicleFreeCFG[name], self.cicleFreeCFG[production[0]]);
 						}	
 					}				
 				}
 			}, self.epsilonFreeCFG);
 
-
-
-
-
-
-			// //for all productions name
-			// for (var efpName in self.epsilonFreeCFG) {
-			// 	if (self.epsilonFreeCFG.hasOwnProperty(efpName)) {
-
-			// 		// for all productions of name
-			// 		for( var i = 0; i < self.epsilonFreeCFG[efpName].length; i++) {
-
-			// 			// for all keys from n
-			// 			for ( var nName in n) {
-
-			// 				if(n.hasOwnProperty(nName)) {
-			// 					if (Utilities.arraysEqual(self.epsilonFreeCFG[efpName][i], n[nName])) {
-			// 						if(!n[efpName].includes(nName)) {
-			// 							var ntemp = n[efpName];
-			// 							var nConc = Utilities.concatNoDups(n[efpName], n[nName]);
-
-			// 							if(!Utilities.arraysEqual(ntemp, nConc)) {
-			// 								changed = true;
-			// 								n[efpName] = nConc;
-			// 							}
-			// 						}
-			// 					}	
-			// 				}
-			// 			}
-			// 		}
-			// 	}
-			// }
 
 			if (changed) {
 				for (var nName in n) {
@@ -555,45 +541,40 @@ window.CFG = function(cfgStr) {
 							var ntemp = n[nName];
 							var nConc = Utilities.concatNoDups(n[nName], n[n[nName][i]]);
 
-
-							console.log("====================");
-							console.log("nName: " + nName);
-							console.log(n[nName]);
-							console.log(n[n[nName][i]]);
-							console.log(Utilities.concatNoDups(n[nName], n[n[nName][i]]));
-
 							if(!Utilities.arraysEqual(ntemp, nConc)) {
 								changed = true;
 								n[nName] = nConc;
 								console.log(n);
 
 							}
-							
-							// console.log(n[nName]);
-							// console.log(n[nName][i]);
-							// console.log("-----------");
 						}
 							
-						//n[nName] = Utilities.concatNoDups(n[nName], n[elem]);
 					}
 				}
 			}
-			
-					console.log(n);
-					console.log("----------------------------------------------");
-					console.log("----------------------------------------------");
-
 		}
 
-		for (var nName in n ) {
-			productionIterationAltCFG(function(name, production) {
-				// console.log("production: " + production);
-				// console.log(nName + ": " + n[nName]);
-				// console.log("contains: " + Utilities.containsArray(n[nName], production));
-			}, self.epsilonFreeCFG);
-		}
-		
+		changed = true;
+		while(changed) {
+			changed = false;
+			for (var nName in n) {
 
+				// var concTempProd;
+				if (n.hasOwnProperty(nName)) {
+					var tempProd = self.cicleFreeCFG[nName];
+					var prodSize = tempProd.length;
+
+					for (var i = 0; i < n[nName].length; i++) {
+						tempProd = Utilities.concatNoDups(self.cicleFreeCFG[n[nName][i]], tempProd);
+					}
+
+					if (prodSize != tempProd.length) {
+						self.cicleFreeCFG[nName] = tempProd;
+						changed = true;
+					}
+				}
+			}	
+		}
 	}
 
 
