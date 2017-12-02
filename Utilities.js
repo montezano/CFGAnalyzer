@@ -129,24 +129,56 @@ window.Utilities = {
 			return document.querySelector(selector);
 		}
 		return document.querySelectorAll(selector);
-	}
+	},
 
 	// Verify if two arrays are equal
 	arraysEqual: function(a, b) {
-		if (a === b) return true;
-		if (a == null || b == null) return false;
-		if (a.length != b.length) return false;
+		var tempa = a;
+		var tempb = b;
+		if (tempa === tempb) return true;
+		if (tempa == null || tempb == null) return false;
+		if (tempa.length != tempb.length) return false;
 
-		a.sort();
-		b.sort();
+		tempa.sort();
+		tempb.sort();
 		// If you don't care about the order of the elements inside
 		// the array, you should sort both arrays here.
 
-		for (var i = 0; i < a.length; ++i) {
-			if (a[i] !== b[i]) return false;
+		for (var i = 0; i < tempa.length; ++i) {
+			if (tempa[i] !== tempb[i]) return false;
 		}
-	return true;
-}
+		return true;
+	},
+
+	// Verify if array1 is contained in array2l
+	containsArray: function(array1, array2) {
+		for(var element  in array1) {
+			if (!array2.includes(element)) {
+				return false;
+			}
+		}
+
+		return true;
+
+	},
+
+
+	// Concatenate array1 and array2 and remove duplicates
+	concatNoDups: function(array1, array2) {
+		var array1temp = array1;
+		var array2temp = array2;
+		var array3 = array1temp.concat(array2temp);
+
+	    for(var i=0; i<array3.length; ++i) {
+	        for(var j=i+1; j<array3.length; ++j) {
+	            if(array3[i] === array3[j])
+	                array3.splice(j--, 1);
+	        }
+	    }
+
+	    return array3;
+	}
+
 };
 
 // Adds all lowercase letters to the terminal list

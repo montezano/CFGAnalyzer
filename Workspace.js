@@ -114,6 +114,7 @@ window.Workspace = function() {
 		container().appendChild(table);
 
 		cfg.epsilonFree();
+		cfg.removeSimpleProductions();
 
 		return isLL1;
 	}

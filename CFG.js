@@ -70,6 +70,19 @@ window.CFG = function(cfgStr) {
 		}
 	};
 
+	// An utility function used to iterate over all productions of this CFG,
+	// executing a callback function on each one providing their name and list
+	// of produced symbols.
+	function productionIterationAltCFG(callback, cfg) {
+		for (var name in cfg) {
+			if (cfg.hasOwnProperty(name)) {
+				for (var i = 0; i < cfg[name].length; i++) {
+					callback(name, cfg[name][i]);
+				}
+			}
+		}
+	};
+
 	// Checks if this grammar is consistent, i.e, if all used non-terminals are
 	// defined.
 	function checkConsistency() {
@@ -466,8 +479,8 @@ window.CFG = function(cfgStr) {
 			productionIteration(function(name, production) {
 				if (production.indexOf(epsilonList[i]) >= 0) {
 					var newProd = production.filter(function(elem, j, array) {
-						console.log("prodname: " + elem);
-						console.log("epsilon: " + epsilonList[i]);
+						//console.log("prodname: " + elem);
+						//console.log("epsilon: " + epsilonList[i]);
 						return elem == epsilonList[i];
 					});
 					self.epsilonFreeCFG[name].push(newProd);	
@@ -478,19 +491,90 @@ window.CFG = function(cfgStr) {
 
 	this.removeSimpleProductions = function() {
 		var n = {};
-		//populate N set
-		for (var production in self.epsilonFreeCFG) {
-			n.set(production, productions);
+		//populate N set initial non terminals
+		for (var epsFreeProd in self.epsilonFreeCFG) {
+			n[epsFreeProd] = [];
+			n[epsFreeProd].push(epsFreeProd);
 		}
 
-		while(algo) {
-			for (var epsFreeProd in self.epsilonFreeCFG) {
-				productionIteration(function(name, production) {
-					
-				})
-			}			
+		// populate N set
+		var changed = true;
+		while(changed) {
+			changed = false;
+
+			//for all productions name
+			for (var efpName in self.epsilonFreeCFG) {
+				if (self.epsilonFreeCFG.hasOwnProperty(efpName)) {
+
+					// for all productions of name
+					for( var i = 0; i < self.epsilonFreeCFG[efpName].length; i++) {
+
+						// for all keys from n
+						for ( var nName in n) {
+
+							if(n.hasOwnProperty(nName)) {
+								if (Utilities.arraysEqual(self.epsilonFreeCFG[efpName][i], n[nName])) {
+									if(!n[efpName].includes(nName)) {
+										var ntemp = n[efpName];
+										var nConc = Utilities.concatNoDups(n[efpName], n[nName]);
+
+										if(!Utilities.arraysEqual(ntemp, nConc)) {
+											changed = true;
+											n[efpName] = nConc;
+										}
+									}
+								}	
+							}
+						}
+					}
+				}
+			}
+
+			if (changed) {
+				for (var nName in n) {
+					if (n.hasOwnProperty(nName)) {
+						for (var i = 0; i < n[nName].length; i++) {
+							var ntemp = n[nName];
+							var nConc = Utilities.concatNoDups(n[nName], n[n[nName][i]]);
+
+
+							console.log("====================");
+							console.log("nName: " + nName);
+							console.log(n[nName]);
+							console.log(n[n[nName][i]]);
+							console.log(Utilities.concatNoDups(n[nName], n[n[nName][i]]));
+
+							if(!Utilities.arraysEqual(ntemp, nConc)) {
+								changed = true;
+								n[nName] = nConc;
+								console.log(n);
+
+							}
+							
+							// console.log(n[nName]);
+							// console.log(n[nName][i]);
+							// console.log("-----------");
+						}
+							
+						//n[nName] = Utilities.concatNoDups(n[nName], n[elem]);
+					}
+				}
+			}
+			
+					console.log(n);
+					console.log("----------------------------------------------");
+					console.log("----------------------------------------------");
+
 		}
 
+		for (var nName in n ) {
+			productionIterationAltCFG(function(name, production) {
+				// console.log("production: " + production);
+				// console.log(nName + ": " + n[nName]);
+				// console.log("contains: " + Utilities.containsArray(n[nName], production));
+			}, self.epsilonFreeCFG);
+		}
+		
 
 	}
 

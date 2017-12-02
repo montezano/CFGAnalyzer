@@ -1,0 +1,4 @@
+S -> F G H
+F -> G | a
+G -> d G | H | b
+H -> c
