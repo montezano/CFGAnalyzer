@@ -691,17 +691,23 @@ window.CFG = function(cfgStr) {
 			productionIterationAltCFG(function(name, production) {
 				var allTerminals = true;
 				var includesAll = true;
+				var includesComposition = true;
 				for (var i = 0; i < production.length; i++) {
 
 					if ( !Utilities.isTerminal(production[i])  ) {
-						if(!(production[i] == EPSILON)) {
+						if(production[i] != EPSILON) {
 							allTerminals = false;	
-						}
-						
+						}						
 					}
 
 					if ( !n.includes(production[i]) ) {
 						includesAll = false;
+					} 
+
+					if ( !Utilities.isTerminal(production[i]) &&
+						!n.includes(production[i])) {
+						includesComposition == false;
+
 					}
 				}
 
@@ -712,6 +718,11 @@ window.CFG = function(cfgStr) {
 					}
 					
 				} else if (includesAll) {
+					if (!n.includes(name)) {
+						n.push(name);
+						changed = true;
+					}
+				} else if (includesComposition) {
 					if (!n.includes(name)) {
 						n.push(name);
 						changed = true;
