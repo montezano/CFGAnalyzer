@@ -13,6 +13,7 @@ window.CFG = function(cfgStr) {
 	this.cicleFreeCFG = {};
 	this.unreachablesFreeCFG = {};
 	this.infertileFreeCFG = {};
+	this.leftRecursionFreeCFG = {};
 
 	/*
 	Receives a string representation of a group of productions
@@ -731,7 +732,7 @@ window.CFG = function(cfgStr) {
 			}, self.unreachablesFreeCFG);
 		}
 
-		console.log(n);
+		// console.log(n);
 
 		productionIterationAltCFG(function(name, production) {
 			if ( n.includes(name)) {
@@ -760,6 +761,69 @@ window.CFG = function(cfgStr) {
 
 	}
 
+	this.removeDirectLeftRecursion = function(name) {
+		var recursiveProds = [];
+		var nonRecursiveProds = []
+		for (var i = 0; i < self.leftRecursionFreeCFG[name].length; i++) {
+			var prod = self.leftRecursionFreeCFG[name][i];
+			if (prod[0] == name) {
+				recursiveProds.push(prod);
+			} else {
+				nonRecursiveProds.push(prod);
+			}
+		}
+
+		if (recursiveProds.length < 1) {
+			return;
+		}
+
+		var newNT = name + "'";
+		while (self.productions.hasOwnProperty(newNT)) {
+			newNT += "'";
+		}
+
+		self.leftRecursionFreeCFG[name] = [];
+		nonRecursiveProds.map(function(element) {
+			var newProd = element.concat(newNT);
+			// console.log(newProd);
+			self.leftRecursionFreeCFG[name].push(newProd);
+		});
+
+		self.leftRecursionFreeCFG[newNT] = [];
+		recursiveProds.map(function(element) {
+			var newProd = element.slice(1).concat(newNT);
+			self.leftRecursionFreeCFG[newNT].push(newProd);
+		})
+
+		self.leftRecursionFreeCFG[newNT].push([Utilities.EPSILON]);
+	}
+
+	this.removeLeftRecursion = function() {
+		var visitedNT = [];
+
+		for (var name in self.infertileFreeCFG) {
+			for (var i = 0; i < self.infertileFreeCFG[name].length; i++) {
+				var production = self.infertileFreeCFG[name][i];
+				if (Utilities.isNonTerminal(production[0]) && visitedNT.includes(production[0])) {
+					var newProductions = [];
+					for (var j = 0; j < self.leftRecursionFreeCFG[production[0]].length; j++) {
+						newProductions.push(self.leftRecursionFreeCFG[production[0]][j].slice());
+					}
+
+					var endOfProd = production.slice(1);
+
+					newProductions.map(function(element) {
+						self.addProductionAltCFG(name, element.concat(endOfProd), self.leftRecursionFreeCFG);
+					});
+				} else {
+					self.addProductionAltCFG(name, production, self.leftRecursionFreeCFG);
+				}
+			}
+			visitedNT.push(name);
+			self.removeDirectLeftRecursion(name);
+		}
+	}
+
 	this.properCFG = function() {
 		self.epsilonFree();
 		console.log("epsfree")
@@ -783,6 +847,10 @@ window.CFG = function(cfgStr) {
 		console.log(self.infertileFreeCFG);
 		console.log("=====================")
 
+		self.removeLeftRecursion();
+		console.log("left recursion")
+		console.log(self.leftRecursionFreeCFG);
+		console.log("=====================")
 	}
 
 
