@@ -14,6 +14,7 @@ window.CFG = function(cfgStr) {
 	this.unreachablesFreeCFG = {};
 	this.infertileFreeCFG = {};
 	this.leftRecursionFreeCFG = {};
+	this.factoredCFG = {};
 
 	/*
 	Receives a string representation of a group of productions
@@ -261,7 +262,8 @@ window.CFG = function(cfgStr) {
 	  of this grammar with the type of non-factorization it has (true for direct,
 	  false for indirect)
 	*/
-	this.getFactorizationInformation = function() {
+	this.getFactorizationInformation = function(cfg) {
+		if (!cfg) cfg = self.productions;
 		var DIRECT = true;
 		var INDIRECT = false;
 		var result = {
@@ -271,7 +273,7 @@ window.CFG = function(cfgStr) {
 		var firstTable = {};
 		var directFirstTable = {};
 		self.firstData = self.first();
-		productionIteration(function(name, production) {
+		productionIterationAltCFG(function(name, production) {
 			if (!firstTable.hasOwnProperty(name)) {
 				firstTable[name] = {};
 			}
@@ -297,7 +299,7 @@ window.CFG = function(cfgStr) {
 				}
 				firstTable[name][first[i]] = 1;
 			}
-		});
+		}, cfg);
 		return result;
 	};
 
@@ -785,7 +787,6 @@ window.CFG = function(cfgStr) {
 		self.leftRecursionFreeCFG[name] = [];
 		nonRecursiveProds.map(function(element) {
 			var newProd = element.concat(newNT);
-			// console.log(newProd);
 			self.leftRecursionFreeCFG[name].push(newProd);
 		});
 
@@ -824,6 +825,80 @@ window.CFG = function(cfgStr) {
 		}
 	}
 
+	function isEmpty(obj) {
+	    for(var key in obj) {
+	        if(obj.hasOwnProperty(key))
+	            return false;
+	    }
+	    return true;
+	}
+
+	this.leftFactor = function() {
+		var factorAgain = false;
+		if (isEmpty(self.factoredCFG)) {
+			productionIterationAltCFG(function(name, production) {
+				self.addProductionAltCFG(name, production, self.factoredCFG);
+			}, self.leftRecursionFreeCFG);
+		}
+
+		var factorizationInfo = self.getFactorizationInformation(self.factoredCFG);
+		for (var name in factorizationInfo.nonFactoredNonTerminals) {
+			factorAgain = true;
+			if (factorizationInfo.nonFactoredNonTerminals[name] == false) {
+				var prods = self.factoredCFG[name].slice();
+				self.factoredCFG[name] = [];
+				for (var i = 0; i < prods.length; i++) {
+					var production = prods[i];
+					if (Utilities.isNonTerminal(production[0])) {
+						var newProductions = [];
+						for (var j = 0; j < self.factoredCFG[production[0]].length; j++) {
+							newProductions.push(self.factoredCFG[production[0]][j].slice());
+						}
+
+						var endOfProd = production.slice(1);
+
+						newProductions.map(function(element) {
+							self.factoredCFG[name].push(element.concat(endOfProd));
+						});
+					} else {
+						self.factoredCFG[name].push(production);
+					}
+				}
+			}
+			var prodsByFirstSymbol = {};
+
+			for (var i = 0; i < self.factoredCFG[name].length; i++) {
+				var prod = self.factoredCFG[name][i];
+				if (!prodsByFirstSymbol[prod[0]]) prodsByFirstSymbol[prod[0]] = [];
+				prodsByFirstSymbol[prod[0]].push(prod);
+			}
+
+			self.factoredCFG[name] = [];
+
+			for (var firstSymbol in prodsByFirstSymbol) {
+				if (prodsByFirstSymbol[firstSymbol].length > 1) {
+
+					var newNT = name + "'";
+					while (self.factoredCFG.hasOwnProperty(newNT)) {
+						newNT += "'";
+					}
+
+					self.factoredCFG[name].push([firstSymbol, newNT]);
+					self.factoredCFG[newNT] = [];
+					prodsByFirstSymbol[firstSymbol].map(function(e) {
+						self.factoredCFG[newNT].push(e.slice(1));
+					});
+				} else {
+					self.factoredCFG[name] = self.factoredCFG[name].concat(prodsByFirstSymbol[firstSymbol]);
+				}
+			}
+		}
+
+		if (factorAgain) {
+			self.leftFactor();
+		}
+	}
+
 	this.properCFG = function() {
 		self.epsilonFree();
 		console.log("epsfree")
@@ -850,6 +925,11 @@ window.CFG = function(cfgStr) {
 		self.removeLeftRecursion();
 		console.log("left recursion")
 		console.log(self.leftRecursionFreeCFG);
+		console.log("=====================")
+
+		self.leftFactor();
+		console.log("left factor")
+		console.log(self.factoredCFG);
 		console.log("=====================")
 	}
 
