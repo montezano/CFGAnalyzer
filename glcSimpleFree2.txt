@@ -1,0 +1,4 @@
+Z -> B a S | B b | &
+S -> B a S | B b
+B -> S A a | B a | A a
+A -> S a | a

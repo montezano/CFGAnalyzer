@@ -113,9 +113,7 @@ window.Workspace = function() {
 		}
 		container().appendChild(table);
 
-		cfg.epsilonFree();
-		cfg.removeSimpleProductions();
-		cfg.removeUnreachables();
+		cfg.properCFG();
 
 		return isLL1;
 	}

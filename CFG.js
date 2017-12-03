@@ -12,6 +12,7 @@ window.CFG = function(cfgStr) {
 	this.epsilonFreeCFG = {};
 	this.cicleFreeCFG = {};
 	this.unreachablesFreeCFG = {};
+	this.infertileFreeCFG = {};
 
 	/*
 	Receives a string representation of a group of productions
@@ -151,6 +152,18 @@ window.CFG = function(cfgStr) {
 		var index = Utilities.indexOf(self.productions[name], symbolSequence);
 		if (index >= 0) {
 			self.productions[name].splice(index, 1);
+		}
+	};
+
+	// Receives the informations about a production and removes it
+	// from this CFG.
+	this.removeProductionAltCFG = function(name, symbolSequence, cfg) {
+		if (!cfg.hasOwnProperty(name)) {
+			return;
+		}
+		var index = Utilities.indexOf(cfg[name], symbolSequence);
+		if (index >= 0) {
+			cfg[name].splice(index, 1);
 		}
 	};
 
@@ -497,6 +510,42 @@ window.CFG = function(cfgStr) {
 				}
 			});
 		}
+
+		var hasEps = false;
+
+		for (var i = 0; i < self.productions[self.initialSymbol].length; i++) {
+			if (self.productions[self.initialSymbol][i] == EPSILON ) {
+				hasEps = true;
+			}
+		}
+
+		if(hasEps) {
+
+			for (var i = 0; i < self.epsilonFreeCFG[self.initialSymbol].length; i++) {
+				self.addProductionAltCFG("Z", self.epsilonFreeCFG[self.initialSymbol][i], self.epsilonFreeCFG);
+			}
+
+			self.addProductionAltCFG("Z", [EPSILON], self.epsilonFreeCFG);
+
+			self.initialSymbol = "Z";
+
+
+		}
+
+
+		// for (var i = 0; i < self.epsilonFreeCFG[self.initialSymbol].length; i++) {
+		// 	if (self.epsilonFreeCFG[self.initialSymbol][i] == EPSILON ) {
+		// 		self.epsilonFreeCFG["Z"] = self.epsilonFreeCFG[self.initialSymbol];
+		// 		self.addProductionAltCFG("Z", [EPSILON], self.epsilonFreeCFG);
+				
+		// 		self.epsilonFreeCFG[self.initialSymbol].splice(i, 1);
+		// 		// self.removeProductionAltCFG(self.initialSymbol, EPSILON, self.epsilonFreeCFG);
+
+		// 		self.initialSymbol = "Z";
+
+		// 		break;
+		// 	}
+		// }
 	};
 
 	this.removeSimpleProductions = function() {
@@ -508,7 +557,7 @@ window.CFG = function(cfgStr) {
 		}
 
 		productionIterationAltCFG(function(name, production) {
-			if (production.length > 1 || Utilities.isTerminal(production)) {
+			if (production.length > 1 || Utilities.isTerminal(production) || (production == EPSILON)) {
 				self.addProductionAltCFG(name, production, self.cicleFreeCFG);
 			}
 		}, self.epsilonFreeCFG);
@@ -620,6 +669,94 @@ window.CFG = function(cfgStr) {
 			}
 		}, self.cicleFreeCFG);
 	}
+
+	this.removeInfertiles = function() {
+		var n = [];
+
+		var changed = true;
+
+		while(changed)
+		{
+			changed = false;
+
+			productionIterationAltCFG(function(name, production) {
+				var allTerminals = true;
+				var includesAll = true;
+				for (var i = 0; i < production.length; i++) {
+
+					if ( !Utilities.isTerminal(production[i])  && !(production[i] == EPSILON) ) {
+						allTerminals = false;
+					}
+
+					if ( !n.includes(production[i]) ) {
+						includesAll = false;
+					}
+				}
+
+				if (allTerminals) {
+					if (!n.includes(name)) {
+						n.push(name);
+						changed = true;	
+					}
+					
+				} else if (includesAll) {
+					if (!n.includes(name)) {
+						n.push(name);
+						changed = true;
+					}
+				}
+			}, self.infertileFreeCFG);
+		}
+
+		productionIteration(function(name, production) {
+			if ( n.includes(name)) {
+				var includesAll = true;
+
+				for (var i = 0; i < production.length; i++) {
+
+					if ( !n.includes(production[i]) ) {
+						if ( !Utilities.isTerminal(production[i]) && !(production[i] == EPSILON))
+						{
+							includesAll = false;	
+						}
+						
+					}
+				}
+
+				if (includesAll) {
+					self.addProductionAltCFG(name, production, self.infertileFreeCFG);
+				}
+				
+			}
+		});
+
+	}
+
+	this.properCFG = function() {
+		self.epsilonFree();
+		console.log("epsfree")
+		console.log(self.epsilonFreeCFG);
+		console.log("=====================")
+
+		// self.removeSimpleProductions();
+		// console.log("simple")
+		// console.log(self.cicleFreeCFG);
+		// console.log("=====================")
+
+
+		// self.removeUnreachables();
+		// console.log("unreachagle")
+		// console.log(self.unreachablesFreeCFG);
+		// console.log("=====================")
+
+
+		// self.removeInfertiles();
+		// console.log("infertile")
+		// console.log(self.infertileFreeCFG);
+		// console.log("=====================")
+
+	}
+
 
 
 	var lines = cfgStr.split("\n");
