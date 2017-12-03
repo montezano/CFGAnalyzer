@@ -488,11 +488,14 @@ window.CFG = function(cfgStr) {
 		var epsilonList = [];
 		var newEpsListSize = 0;
 		var oldEpsListSize = -1;
-		while (newEpsListSize != oldEpsListSize) {
-			oldEpsListSize = newEpsListSize;
+		while (epsilonList.length != oldEpsListSize) {
+			oldEpsListSize = epsilonList.length;
 			productionIteration(function(name, production) {
 				if (production == EPSILON) {
-					epsilonList.push(name);
+					if(!epsilonList.includes(name))
+					{
+						epsilonList.push(name);	
+					}
 				}
 			});
 		}
@@ -500,13 +503,19 @@ window.CFG = function(cfgStr) {
 		for (var i = 0; i < epsilonList.length; i++)
 		{
 			productionIteration(function(name, production) {
-				if (production.indexOf(epsilonList[i]) >= 0) {
+
+				if (production.includes(epsilonList[i])) {
 					var newProd = production.filter(function(elem, j, array) {
 						//console.log("prodname: " + elem);
 						//console.log("epsilon: " + epsilonList[i]);
-						return elem == epsilonList[i];
+						return elem != epsilonList[i];
 					});
-					self.epsilonFreeCFG[name].push(newProd);	
+
+					if (!self.epsilonFreeCFG[name].includes(newProd)) {
+						self.addProductionAltCFG(name, newProd, self.epsilonFreeCFG);	
+					}
+					
+					// self.epsilonFreeCFG[name].push(newProd);	
 				}
 			});
 		}
@@ -684,8 +693,11 @@ window.CFG = function(cfgStr) {
 				var includesAll = true;
 				for (var i = 0; i < production.length; i++) {
 
-					if ( !Utilities.isTerminal(production[i])  && !(production[i] == EPSILON) ) {
-						allTerminals = false;
+					if ( !Utilities.isTerminal(production[i])  ) {
+						if(!(production[i] == EPSILON)) {
+							allTerminals = false;	
+						}
+						
 					}
 
 					if ( !n.includes(production[i]) ) {
@@ -705,19 +717,24 @@ window.CFG = function(cfgStr) {
 						changed = true;
 					}
 				}
-			}, self.infertileFreeCFG);
+			}, self.unreachablesFreeCFG);
 		}
 
-		productionIteration(function(name, production) {
+		console.log(n);
+
+		productionIterationAltCFG(function(name, production) {
 			if ( n.includes(name)) {
 				var includesAll = true;
 
 				for (var i = 0; i < production.length; i++) {
 
 					if ( !n.includes(production[i]) ) {
-						if ( !Utilities.isTerminal(production[i]) && !(production[i] == EPSILON))
+						if ( !Utilities.isTerminal(production[i]))
 						{
-							includesAll = false;	
+							if (!(production[i] == EPSILON)) {
+								includesAll = false;		
+							}
+							
 						}
 						
 					}
@@ -728,7 +745,7 @@ window.CFG = function(cfgStr) {
 				}
 				
 			}
-		});
+		}, self.unreachablesFreeCFG);
 
 	}
 
@@ -738,22 +755,22 @@ window.CFG = function(cfgStr) {
 		console.log(self.epsilonFreeCFG);
 		console.log("=====================")
 
-		// self.removeSimpleProductions();
-		// console.log("simple")
-		// console.log(self.cicleFreeCFG);
-		// console.log("=====================")
+		self.removeSimpleProductions();
+		console.log("simple")
+		console.log(self.cicleFreeCFG);
+		console.log("=====================")
 
 
-		// self.removeUnreachables();
-		// console.log("unreachagle")
-		// console.log(self.unreachablesFreeCFG);
-		// console.log("=====================")
+		self.removeUnreachables();
+		console.log("unreachagle")
+		console.log(self.unreachablesFreeCFG);
+		console.log("=====================")
 
 
-		// self.removeInfertiles();
-		// console.log("infertile")
-		// console.log(self.infertileFreeCFG);
-		// console.log("=====================")
+		self.removeInfertiles();
+		console.log("infertile")
+		console.log(self.infertileFreeCFG);
+		console.log("=====================")
 
 	}
 
