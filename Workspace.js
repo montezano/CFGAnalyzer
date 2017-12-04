@@ -14,6 +14,10 @@ var cfgContainer = function() {
 	return $("#current_cfg");
 };
 
+var analyedCfgContainer = function() {
+	return $("#analyzed_cfg");
+};
+
 var pointers = function() {
 	return $(".productionPointer");
 };
@@ -35,6 +39,14 @@ var genCell = function(content, isLabel) {
 window.Workspace = function() {
 	var self = this;
 	this.currentCFG = null;
+	this.analyzedCFG = null;
+
+	this.epsilonFree;
+	this.removeSimpleProductions;
+	this.removeUnreachables;
+	this.removeInfertiles;
+	this.removeLeftRecursion;
+	this.leftFactor;
 
 	// Analyzes the current CFG of this workspace, printing informations such
 	// as recursion data, factoring data, first, follow and parsing table.
@@ -113,7 +125,21 @@ window.Workspace = function() {
 		}
 		container().appendChild(table);
 
-		cfg.properCFG();
+		// cfg.properCFG();
+
+		self.epsilonFree = cfg.stringfyCFG(cfg.epsilonFree());
+		self.removeSimpleProductions = cfg.stringfyCFG(cfg.removeSimpleProductions());
+		self.removeUnreachables = cfg.stringfyCFG(cfg.removeUnreachables());
+		self.removeInfertiles = cfg.stringfyCFG(cfg.removeInfertiles());
+		self.removeLeftRecursion = cfg.stringfyCFG(cfg.removeLeftRecursion());
+		self.leftFactor = cfg.stringfyCFG(cfg.leftFactor());
+
+		// self.setCFGAlt(;
+		// self.setCFGAlt(
+		// self.setCFGAlt(
+		// self.setCFGAlt(
+		// self.setCFGAlt(
+		// self.setCFGAlt(
 
 		return isLL1;
 	}
@@ -137,6 +163,7 @@ window.Workspace = function() {
 		container().innerHTML = "";
 		printAnalysisTable();
 		printIsFactored();
+		printCFGs();
 		updateEvents();
 
 	}
@@ -155,6 +182,15 @@ window.Workspace = function() {
 		}
 	}
 
+	function printCFGs() {
+		self.setCFGAlt(self.epsilonFree, "Epsilon free");
+		self.setCFGAlt(self.removeSimpleProductions, "Cicle free");
+		self.setCFGAlt(self.removeUnreachables, "Unreachable free");
+		self.setCFGAlt(self.removeInfertiles, "Infertile free");
+		self.setCFGAlt(self.removeLeftRecursion, "LR free");
+		self.setCFGAlt(self.leftFactor, "Factored in X");
+	}
+
 	// Shows an error to the user.
 	this.error = function(message) {
 		alert(message);
@@ -170,8 +206,18 @@ window.Workspace = function() {
 			return false;
 		}
 		self.currentCFG = instance;
-		cfgContainer().innerHTML = instance.string.replace(/</g, '&lt;').replace(/([^-])>/g, '$1&gt;').replace(/\n/g, "<br>");
+		cfgContainer().innerHTML = "Current CFG:<br>"
+		cfgContainer().innerHTML += instance.string.replace(/</g, '&lt;').replace(/([^-])>/g, '$1&gt;').replace(/\n/g, "<br>");
 		updateUI();
+		return true;
+	};
+
+	this.setCFGAlt = function(cfg, type) {
+
+		analyedCfgContainer().innerHTML += type + " CFG:<br>"
+		analyedCfgContainer().innerHTML += cfg.replace(/</g, '&lt;').replace(/([^-])>/g, '$1&gt;').replace(/\n/g, "<br>");
+		analyedCfgContainer().innerHTML += "<br><br>";
+
 		return true;
 	};
 

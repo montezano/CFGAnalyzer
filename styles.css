@@ -57,7 +57,7 @@ input[type="button"] {
 	width: 100%;
 }
 
-#current_cfg {
+#current_cfg, #analyzed_cfg {
 	font-size: 20px;
 	font-family: monospace;
 	margin-top: 5px;

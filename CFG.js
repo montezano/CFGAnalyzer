@@ -544,20 +544,7 @@ window.CFG = function(cfgStr) {
 
 		}
 
-
-		// for (var i = 0; i < self.epsilonFreeCFG[self.initialSymbol].length; i++) {
-		// 	if (self.epsilonFreeCFG[self.initialSymbol][i] == EPSILON ) {
-		// 		self.epsilonFreeCFG["Z"] = self.epsilonFreeCFG[self.initialSymbol];
-		// 		self.addProductionAltCFG("Z", [EPSILON], self.epsilonFreeCFG);
-				
-		// 		self.epsilonFreeCFG[self.initialSymbol].splice(i, 1);
-		// 		// self.removeProductionAltCFG(self.initialSymbol, EPSILON, self.epsilonFreeCFG);
-
-		// 		self.initialSymbol = "Z";
-
-		// 		break;
-		// 	}
-		// }
+		return self.epsilonFreeCFG;
 	};
 
 	this.removeSimpleProductions = function() {
@@ -637,6 +624,8 @@ window.CFG = function(cfgStr) {
 				}
 			}	
 		}
+
+		return self.cicleFreeCFG;
 	}
 
 	this.removeUnreachables = function() {
@@ -680,6 +669,8 @@ window.CFG = function(cfgStr) {
 				}
 			}
 		}, self.cicleFreeCFG);
+
+		return self.unreachablesFreeCFG;
 	}
 
 	this.removeInfertiles = function() {
@@ -761,6 +752,7 @@ window.CFG = function(cfgStr) {
 			}
 		}, self.unreachablesFreeCFG);
 
+		return self.infertileFreeCFG;
 	}
 
 	this.removeDirectLeftRecursion = function(name) {
@@ -797,6 +789,7 @@ window.CFG = function(cfgStr) {
 		})
 
 		self.leftRecursionFreeCFG[newNT].push([Utilities.EPSILON]);
+
 	}
 
 	this.removeLeftRecursion = function() {
@@ -823,6 +816,9 @@ window.CFG = function(cfgStr) {
 			visitedNT.push(name);
 			self.removeDirectLeftRecursion(name);
 		}
+
+		return self.leftRecursionFreeCFG;
+
 	}
 
 	function isEmpty(obj) {
@@ -835,15 +831,15 @@ window.CFG = function(cfgStr) {
 
 	this.leftFactor = function() {
 		var factorAgain = false;
-		console.log("---RE----");
-		console.log(self.leftRecursionFreeCFG);
+		// console.log("---RE----");
+		// console.log(self.leftRecursionFreeCFG);
 		if (isEmpty(self.factoredCFG)) {
 			productionIterationAltCFG(function(name, production) {
 				self.addProductionAltCFG(name, production, self.factoredCFG);
 			}, self.leftRecursionFreeCFG);
 		}
 
-		console.log(self.factoredCFG);
+		// console.log(self.factoredCFG);
 
 		var factorizationInfo = self.getFactorizationInformation(self.factoredCFG);
 		for (var name in factorizationInfo.nonFactoredNonTerminals) {
@@ -908,40 +904,55 @@ window.CFG = function(cfgStr) {
 		if (factorAgain) {
 			self.leftFactor();
 		}
+
+		return self.factoredCFG;
 	}
 
 	this.properCFG = function() {
-		self.epsilonFree();
-		console.log("epsfree")
-		console.log(self.epsilonFreeCFG);
-		console.log("=====================")
+		// self.epsilonFree();
+		// console.log("epsfree")
+		// console.log(self.epsilonFreeCFG);
+		// console.log("=====================")
 
-		self.removeSimpleProductions();
-		console.log("simple")
-		console.log(self.cicleFreeCFG);
-		console.log("=====================")
-
-
-		self.removeUnreachables();
-		console.log("unreachagle")
-		console.log(self.unreachablesFreeCFG);
-		console.log("=====================")
+		// self.removeSimpleProductions();
+		// console.log("simple")
+		// console.log(self.cicleFreeCFG);
+		// console.log("=====================")
 
 
-		self.removeInfertiles();
-		console.log("infertile")
-		console.log(self.infertileFreeCFG);
-		console.log("=====================")
+		// self.removeUnreachables();
+		// console.log("unreachagle")
+		// console.log(self.unreachablesFreeCFG);
+		// console.log("=====================")
 
-		self.removeLeftRecursion();
-		console.log("left recursion")
-		console.log(self.leftRecursionFreeCFG);
-		console.log("=====================")
 
-		self.leftFactor();
-		console.log("left factor")
-		console.log(self.factoredCFG);
-		console.log("=====================")
+		// self.removeInfertiles();
+		// console.log("infertile")
+		// console.log(self.infertileFreeCFG);
+		// console.log("=====================")
+
+		// self.removeLeftRecursion();
+		// console.log("left recursion")
+		// console.log(self.leftRecursionFreeCFG);
+		// console.log("=====================")
+
+		// self.leftFactor();
+		// console.log("left factor")
+		// console.log(self.factoredCFG);
+		// console.log("=====================")
+
+		// self.stringfyCFG();
+	}
+
+	this.stringfyCFG = function(cfg) {
+		var str = JSON.stringify(cfg, null, 4);
+
+		str = str.replace(/ /g, "").replace(/:\[\n/g, " -> ")
+			.replace(/\[\n/g, "").replace(/\],\n/g, "").replace(/,\n/g, " ")
+			.replace(/"\n"/g, " | ").replace(/\]\n/g, "").replace(/"/g, "")
+			.replace(/\{/g, "").replace(/\}/g, "");
+
+		return str;
 	}
 
 
