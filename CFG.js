@@ -835,11 +835,15 @@ window.CFG = function(cfgStr) {
 
 	this.leftFactor = function() {
 		var factorAgain = false;
+		console.log("---RE----");
+		console.log(self.leftRecursionFreeCFG);
 		if (isEmpty(self.factoredCFG)) {
 			productionIterationAltCFG(function(name, production) {
 				self.addProductionAltCFG(name, production, self.factoredCFG);
 			}, self.leftRecursionFreeCFG);
 		}
+
+		console.log(self.factoredCFG);
 
 		var factorizationInfo = self.getFactorizationInformation(self.factoredCFG);
 		for (var name in factorizationInfo.nonFactoredNonTerminals) {
@@ -849,20 +853,23 @@ window.CFG = function(cfgStr) {
 				self.factoredCFG[name] = [];
 				for (var i = 0; i < prods.length; i++) {
 					var production = prods[i];
-					if (Utilities.isNonTerminal(production[0])) {
-						var newProductions = [];
-						for (var j = 0; j < self.factoredCFG[production[0]].length; j++) {
-							newProductions.push(self.factoredCFG[production[0]][j].slice());
+					if ( production ) {
+						if (Utilities.isNonTerminal(production[0])) {
+							var newProductions = [];
+							for (var j = 0; j < self.factoredCFG[production[0]].length; j++) {
+								newProductions.push(self.factoredCFG[production[0]][j].slice());
+							}
+
+							var endOfProd = production.slice(1);
+
+							newProductions.map(function(element) {
+								self.factoredCFG[name].push(element.concat(endOfProd));
+							});
+						} else {
+							self.factoredCFG[name].push(production);
 						}
-
-						var endOfProd = production.slice(1);
-
-						newProductions.map(function(element) {
-							self.factoredCFG[name].push(element.concat(endOfProd));
-						});
-					} else {
-						self.factoredCFG[name].push(production);
 					}
+
 				}
 			}
 			var prodsByFirstSymbol = {};
@@ -886,7 +893,11 @@ window.CFG = function(cfgStr) {
 					self.factoredCFG[name].push([firstSymbol, newNT]);
 					self.factoredCFG[newNT] = [];
 					prodsByFirstSymbol[firstSymbol].map(function(e) {
-						self.factoredCFG[newNT].push(e.slice(1));
+						if (e.length == 1) {
+							self.factoredCFG[newNT].push([EPSILON]);
+						} else {
+							self.factoredCFG[newNT].push(e.slice(1));							
+						}
 					});
 				} else {
 					self.factoredCFG[name] = self.factoredCFG[name].concat(prodsByFirstSymbol[firstSymbol]);
