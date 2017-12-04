@@ -15,7 +15,11 @@ var cfgContainer = function() {
 };
 
 var analyedCfgContainer = function() {
-	return $("#analyzed_cfg");
+	return $("#analyzed_cfg")
+};
+
+var maxFactorizationSteps = function() {
+	return parseInt($("#n_factorization").value);
 };
 
 var pointers = function() {
@@ -125,21 +129,12 @@ window.Workspace = function() {
 		}
 		container().appendChild(table);
 
-		// cfg.properCFG();
-
 		self.epsilonFree = cfg.stringfyCFG(cfg.epsilonFree());
 		self.removeSimpleProductions = cfg.stringfyCFG(cfg.removeSimpleProductions());
 		self.removeUnreachables = cfg.stringfyCFG(cfg.removeUnreachables());
 		self.removeInfertiles = cfg.stringfyCFG(cfg.removeInfertiles());
 		self.removeLeftRecursion = cfg.stringfyCFG(cfg.removeLeftRecursion());
-		self.leftFactor = cfg.stringfyCFG(cfg.leftFactor());
-
-		// self.setCFGAlt(;
-		// self.setCFGAlt(
-		// self.setCFGAlt(
-		// self.setCFGAlt(
-		// self.setCFGAlt(
-		// self.setCFGAlt(
+		self.leftFactor = cfg.stringfyCFG(cfg.leftFactor(maxFactorizationSteps()));
 
 		return isLL1;
 	}
@@ -188,7 +183,7 @@ window.Workspace = function() {
 		self.setCFGAlt(self.removeUnreachables, "Unreachable free");
 		self.setCFGAlt(self.removeInfertiles, "Infertile free");
 		self.setCFGAlt(self.removeLeftRecursion, "LR free");
-		self.setCFGAlt(self.leftFactor, "Factored in X");
+		self.setCFGAlt(self.leftFactor, "Factored in " + maxFactorizationSteps());
 	}
 
 	// Shows an error to the user.

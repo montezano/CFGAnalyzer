@@ -829,7 +829,7 @@ window.CFG = function(cfgStr) {
 	    return true;
 	}
 
-	this.leftFactor = function() {
+	this.leftFactor = function(maxSteps) {
 		var factorAgain = false;
 		// console.log("---RE----");
 		// console.log(self.leftRecursionFreeCFG);
@@ -839,7 +839,12 @@ window.CFG = function(cfgStr) {
 			}, self.leftRecursionFreeCFG);
 		}
 
-		// console.log(self.factoredCFG);
+
+		if (typeof maxSteps !== 'undefined' && maxSteps < 1) {
+			return;
+		}
+
+		console.log(self.factoredCFG);
 
 		var factorizationInfo = self.getFactorizationInformation(self.factoredCFG);
 		for (var name in factorizationInfo.nonFactoredNonTerminals) {
@@ -902,7 +907,14 @@ window.CFG = function(cfgStr) {
 		}
 
 		if (factorAgain) {
-			self.leftFactor();
+			if (typeof maxSteps !== 'undefined') {
+				if (maxSteps > 1) {
+					self.leftFactor(maxSteps - 1);
+				}
+			} else {
+				// No limit
+				self.leftFactor();
+			}
 		}
 
 		return self.factoredCFG;
@@ -918,31 +930,8 @@ window.CFG = function(cfgStr) {
 		// console.log("simple")
 		// console.log(self.cicleFreeCFG);
 		// console.log("=====================")
+}
 
-
-		// self.removeUnreachables();
-		// console.log("unreachagle")
-		// console.log(self.unreachablesFreeCFG);
-		// console.log("=====================")
-
-
-		// self.removeInfertiles();
-		// console.log("infertile")
-		// console.log(self.infertileFreeCFG);
-		// console.log("=====================")
-
-		// self.removeLeftRecursion();
-		// console.log("left recursion")
-		// console.log(self.leftRecursionFreeCFG);
-		// console.log("=====================")
-
-		// self.leftFactor();
-		// console.log("left factor")
-		// console.log(self.factoredCFG);
-		// console.log("=====================")
-
-		// self.stringfyCFG();
-	}
 
 	this.stringfyCFG = function(cfg) {
 		var str = JSON.stringify(cfg, null, 4);
@@ -951,7 +940,6 @@ window.CFG = function(cfgStr) {
 			.replace(/\[\n/g, "").replace(/\],\n/g, "").replace(/,\n/g, " ")
 			.replace(/"\n"/g, " | ").replace(/\]\n/g, "").replace(/"/g, "")
 			.replace(/\{/g, "").replace(/\}/g, "");
-
 		return str;
 	}
 

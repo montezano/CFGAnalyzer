@@ -100,3 +100,17 @@ tr.highlight td:first-child, span.error {
 	color: red;
 	text-decoration: underline;
 }
+
+.flex-container {
+	display: flex;
+	flex-wrap: nowrap;
+}
+
+#factorization-input-container {
+	margin: auto;
+}
+
+#factorization-input-container input {
+	width: 3em;
+	text-align: right;
+}
