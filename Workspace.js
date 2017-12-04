@@ -56,7 +56,7 @@ window.Workspace = function() {
 	// as recursion data, factoring data, first, follow and parsing table.
 	function printAnalysisTable() {
 		var fields = ["Non-Terminal", "Recursion", "Factorization", "First",
-					  "Follow", 	"First ∩ Follow"];
+					  "Follow", "First ∩ Follow", "First-NT"];
 
 		var table = node("table");
 		var headerRow = node("tr");
@@ -85,6 +85,7 @@ window.Workspace = function() {
 		var recursiveNT = recursionInfo.recursiveNonTerminals;
 		var nonFactoredNT = factorizationInfo.nonFactoredNonTerminals;
 		var first = cfg.first();
+		var firstNT = cfg.firstNT();
 		var follow = cfg.follow();
 		var firstFollowConflicts = [];
 		var isLL1 = true;
@@ -106,6 +107,7 @@ window.Workspace = function() {
 			row.appendChild(genCell(first[name].join(", ")));
 			row.appendChild(genCell(follow[name].join(", ")));
 			row.appendChild(genCell(intFirstFollow.join(", ")));
+			row.appendChild(genCell(firstNT[name].join(", ")));
 			table.appendChild(row);
 
 			if (derivesEpsilon && intFirstFollow.length > 0) {

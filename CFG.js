@@ -9,6 +9,7 @@ window.CFG = function(cfgStr) {
 	this.productions = {};
 	this.initialSymbol = null;
 	this.firstData = null;
+	this.firstNT = null;
 	this.epsilonFreeCFG = {};
 	this.cicleFreeCFG = {};
 	this.unreachablesFreeCFG = {};
@@ -364,6 +365,31 @@ window.CFG = function(cfgStr) {
 		}
 	}
 
+	function populateFirstNT(nonTerminal, firstNT) {
+		if (!firstNT.includes(nonTerminal)) {
+			firstNT.push(nonTerminal);
+		} else {
+			return;
+		}
+
+		var productions = self.productions[nonTerminal];
+		for (var i = 0; i < productions.length; i++) {
+			var production = productions[i];
+
+			for (var j = 0; j < production.length; j++) {
+				if (Utilities.isNonTerminal(production[j])) {
+					populateFirstNT(production[j], firstNT);
+
+					if (!compositeFirst(production[j]).includes(EPSILON)) {
+						break;
+					}
+				} else {
+					break;
+				}
+			}
+		}
+	}
+
 	// Returns the first set of a sequence of symbols, given that the first
 	// set of all non-terminals are available in self.firstData.r
 	function compositeFirst(symbolSequence) {
@@ -445,6 +471,24 @@ window.CFG = function(cfgStr) {
 		self.firstData = result;
 		return result;
 	};
+
+	this.firstNT = function() {
+		if (self.firstNTData != null) {
+			return self.firstNTData;
+		}
+
+		var result = {};
+		var nonTerminals = self.getNonTerminals();
+
+		for (var i = 0; i < nonTerminals.length; i++) {
+			result[nonTerminals[i]] = [];
+			populateFirstNT(nonTerminals[i], result[nonTerminals[i]]);
+			Utilities.removeIndexableDuplicates(result[nonTerminals[i]]);
+		}
+
+		self.firstNTData = result;
+		return result;
+	}
 
 	// Returns a map associating each non-terminal of this grammar
 	// with its corresponding follow array.
