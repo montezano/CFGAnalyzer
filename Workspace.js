@@ -56,7 +56,7 @@ window.Workspace = function() {
 	// as recursion data, factoring data, first, follow and parsing table.
 	function printAnalysisTable() {
 		var fields = ["Non-Terminal", "Recursion", "Factorization", "First",
-					  "Follow", "First ∩ Follow", "First-NT"];
+					  "Follow", "First-NT"];
 
 		var table = node("table");
 		var headerRow = node("tr");
@@ -87,7 +87,6 @@ window.Workspace = function() {
 		var first = cfg.first();
 		var firstNT = cfg.firstNT();
 		var follow = cfg.follow();
-		var firstFollowConflicts = [];
 		var isLL1 = true;
 		for (var i = 0; i < nonTerminals.length; i++) {
 			var name = nonTerminals[i];
@@ -106,7 +105,6 @@ window.Workspace = function() {
 			row.appendChild(genCell(FACTORIZATION_TYPES[factorizationType]));
 			row.appendChild(genCell(first[name].join(", ")));
 			row.appendChild(genCell(follow[name].join(", ")));
-			row.appendChild(genCell(intFirstFollow.join(", ")));
 			row.appendChild(genCell(firstNT[name].join(", ")));
 			table.appendChild(row);
 
@@ -121,14 +119,7 @@ window.Workspace = function() {
 			}
 		}
 
-		for (var i = 0; i < firstFollowConflicts.length; i++) {
-			var name = firstFollowConflicts[i];
-			row = node("tr");
-			cell = genCell(name + " has a first/follow conflict.");
-			cell.colSpan = fields.length;
-			row.appendChild(cell);
-			table.appendChild(row);
-		}
+
 		container().appendChild(table);
 
 		self.epsilonFree = cfg.stringfyCFG(cfg.epsilonFree());
