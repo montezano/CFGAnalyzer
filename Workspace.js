@@ -14,6 +14,10 @@ var cfgContainer = function() {
 	return $("#current_cfg");
 };
 
+var maxFactorizationSteps = function() {
+	return parseInt($("#n_factorization").value);
+};
+
 var pointers = function() {
 	return $(".productionPointer");
 };
@@ -113,7 +117,7 @@ window.Workspace = function() {
 		}
 		container().appendChild(table);
 
-		cfg.properCFG();
+		cfg.properCFG(maxFactorizationSteps());
 
 		return isLL1;
 	}

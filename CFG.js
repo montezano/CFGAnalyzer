@@ -833,7 +833,7 @@ window.CFG = function(cfgStr) {
 	    return true;
 	}
 
-	this.leftFactor = function() {
+	this.leftFactor = function(maxSteps) {
 		var factorAgain = false;
 		console.log("---RE----");
 		console.log(self.leftRecursionFreeCFG);
@@ -841,6 +841,10 @@ window.CFG = function(cfgStr) {
 			productionIterationAltCFG(function(name, production) {
 				self.addProductionAltCFG(name, production, self.factoredCFG);
 			}, self.leftRecursionFreeCFG);
+		}
+
+		if (typeof maxSteps !== 'undefined' && maxSteps < 1) {
+			return;
 		}
 
 		console.log(self.factoredCFG);
@@ -906,11 +910,18 @@ window.CFG = function(cfgStr) {
 		}
 
 		if (factorAgain) {
-			self.leftFactor();
+			if (typeof maxSteps !== 'undefined') {
+				if (maxSteps > 1) {
+					self.leftFactor(maxSteps - 1);
+				}
+			} else {
+				// No limit
+				self.leftFactor();
+			}
 		}
 	}
 
-	this.properCFG = function() {
+	this.properCFG = function(maxFactorizationSteps) {
 		self.epsilonFree();
 		console.log("epsfree")
 		console.log(self.epsilonFreeCFG);
@@ -938,7 +949,7 @@ window.CFG = function(cfgStr) {
 		console.log(self.leftRecursionFreeCFG);
 		console.log("=====================")
 
-		self.leftFactor();
+		self.leftFactor(maxFactorizationSteps);
 		console.log("left factor")
 		console.log(self.factoredCFG);
 		console.log("=====================")
