@@ -365,9 +365,9 @@ window.CFG = function(cfgStr) {
 		}
 	}
 
-	function populateFirstNT(nonTerminal, firstNT) {
-		if (!firstNT.includes(nonTerminal)) {
-			firstNT.push(nonTerminal);
+	function populateFirstNT(nonTerminal, firstNT, visited) {
+		if (!visited.includes(nonTerminal)) {
+			visited.push(nonTerminal);
 		} else {
 			return;
 		}
@@ -378,7 +378,8 @@ window.CFG = function(cfgStr) {
 
 			for (var j = 0; j < production.length; j++) {
 				if (Utilities.isNonTerminal(production[j])) {
-					populateFirstNT(production[j], firstNT);
+					firstNT.push(production[j]);
+					populateFirstNT(production[j], firstNT, visited);
 
 					if (!compositeFirst(production[j]).includes(EPSILON)) {
 						break;
@@ -482,7 +483,7 @@ window.CFG = function(cfgStr) {
 
 		for (var i = 0; i < nonTerminals.length; i++) {
 			result[nonTerminals[i]] = [];
-			populateFirstNT(nonTerminals[i], result[nonTerminals[i]]);
+			populateFirstNT(nonTerminals[i], result[nonTerminals[i]], []);
 			Utilities.removeIndexableDuplicates(result[nonTerminals[i]]);
 		}
 
