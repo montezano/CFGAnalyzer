@@ -559,6 +559,10 @@ window.CFG = function(cfgStr) {
 						return elem != epsilonList[i];
 					});
 
+					if(newProd.length == 0){
+						newProd.push(EPSILON);
+					}
+
 					if (!self.epsilonFreeCFG[name].includes(newProd)) {
 						self.addProductionAltCFG(name, newProd, self.epsilonFreeCFG);	
 					}
@@ -745,7 +749,7 @@ window.CFG = function(cfgStr) {
 
 					if ( !Utilities.isTerminal(production[i]) &&
 						!n.includes(production[i])) {
-						includesComposition == false;
+						includesComposition = false;
 
 					}
 				}
@@ -850,6 +854,10 @@ window.CFG = function(cfgStr) {
 					}
 
 					var endOfProd = production.slice(1);
+
+					if (production.length == 1) {
+						endOfProd = [EPSILON];
+					}
 
 					newProductions.map(function(element) {
 						self.addProductionAltCFG(name, element.concat(endOfProd), self.leftRecursionFreeCFG);

@@ -108,9 +108,9 @@ window.Workspace = function() {
 			row.appendChild(genCell(firstNT[name].join(", ")));
 			table.appendChild(row);
 
-			if (derivesEpsilon && intFirstFollow.length > 0) {
-				firstFollowConflicts.push(name);
-			}
+			// if (derivesEpsilon && intFirstFollow.length > 0) {
+			// 	firstFollowConflicts.push(name);
+			// }
 
 			var isAntiLL1 = recursionType || factorizationType || (derivesEpsilon && intFirstFollow.length > 0);
 			if (isAntiLL1) {
