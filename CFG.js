@@ -529,9 +529,9 @@ window.CFG = function(cfgStr) {
 			}
 		}
 
-		if (!epsFreeRet) {
-			return true;
-		}
+		// if (!epsFreeRet) {
+		// 	return true;
+		// }
 
 		var epsilonList = [];
 		var newEpsListSize = 0;
